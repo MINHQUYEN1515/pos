@@ -1,0 +1,1 @@
+enum TypeProduct { drink, food }
