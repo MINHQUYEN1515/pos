@@ -37,11 +37,26 @@ dependencies:
   
   #state mananger
   flutter_bloc: ^9.0.0
+  get: ^4.7.2
+  equatable: ^2.0.7
 
   #store
   shared_preferences: ^2.5.1
   hive_flutter: ^1.1.0
+
+  #mutilanguge
   easy_localization: ^3.0.7+1
+
+  #ui
+  flutter_screenutil: ^5.9.3
+
+  #font
+  google_fonts: ^6.2.1
+
+  #device
+  device_info_plus: ^11.3.0
+  process_run: ^1.2.2+1
+  get_it: ^8.0.3
   
 
 dev_dependencies:
@@ -70,9 +85,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
+    - assets/translations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
