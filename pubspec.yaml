@@ -45,6 +45,9 @@ dependencies:
   hive_flutter: ^1.1.0
   path_provider: ^2.1.5
 
+  #security
+  encrypt: ^5.0.3
+
   #mutilanguge
   easy_localization: ^3.0.7+1
 
@@ -58,6 +61,8 @@ dependencies:
   device_info_plus: ^11.3.0
   process_run: ^1.2.2+1
   get_it: ^8.0.3
+  crypto: ^3.0.6
+  convert: ^3.1.2
   
 
 dev_dependencies:

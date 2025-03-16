@@ -7,6 +7,7 @@ class AppRoutes {
   static String get splash => '/';
   static String get register => '/register';
   static String get home => '/home';
+  static String get login => '/login';
 
   static List<String> transparentRoutes = [];
   static getRoute(RouteSettings settings) {

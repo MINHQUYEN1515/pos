@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos/core/routes/app_route.dart';
 import 'package:pos/state_manager/register_cubit/register.dart';
+import 'package:pos/ui/pages/splash/splash.dart';
 
 import 'ui/pages/page.dart';
 
@@ -18,7 +19,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       initialRoute: AppRoutes.splash,
       onGenerateRoute: (settings) => AppRoutes.getRoute(settings),
       localizationsDelegates: context.localizationDelegates,
@@ -29,7 +30,10 @@ class _AppState extends State<App> {
           Theme.of(context).textTheme,
         ),
       ),
-      home: Scaffold(body: RegisterPage(widget.registerCubit)),
+      builder: (context, child) {
+        return child!;
+      },
+      home: Scaffold(body: SplashPage()),
     );
   }
 }

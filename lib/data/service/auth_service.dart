@@ -11,8 +11,8 @@ class AuthService extends IAuthService {
   Future<void> saveInfoPos({required String password}) async {
     UserPos pos = UserPos(
         password: password,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now());
+        createdAt: DateTime.now().toString(),
+        updatedAt: DateTime.now().toString());
     await _database.setString(DatabaseKey.user, jsonEncode(pos));
   }
 
@@ -31,6 +31,6 @@ class AuthService extends IAuthService {
 
   @override
   Future<void> registerDevice({required UserPos user}) async {
-    await _database.setString(DatabaseKey.user, jsonEncode(user));
+    await _database.setString(DatabaseKey.user, jsonEncode(user.toJson()));
   }
 }

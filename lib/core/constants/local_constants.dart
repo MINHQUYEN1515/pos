@@ -14,3 +14,7 @@ class LocalConstants {
   static const String TABLE_BILL = "TABLE_BILL";
   static const String TABLE_CATEGORY = "TABLE_CATEGORY";
 }
+
+class AppConstants {
+  static const String KEY = "ASDFGHJKLASDFGHJ";
+}
