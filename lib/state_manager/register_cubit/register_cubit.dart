@@ -18,6 +18,8 @@ class RegisterCubit extends Cubit<RegisterState> {
       await _auth.resgisterUser(
           user: UserPos(
               userName: name,
+              isLogin: false,
+              language: 'vi',
               password: SecurityUtils.generateMd5("12345678"),
               createdAt: DateTime.now().toString(),
               updatedAt: DateTime.now().toString()));

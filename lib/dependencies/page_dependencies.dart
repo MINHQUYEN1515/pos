@@ -10,7 +10,7 @@ class PageDependencies {
         instanceName: AppRoutes.splash);
     injector.registerFactory<Widget>(() => RegisterPage(injector()),
         instanceName: AppRoutes.register);
-    injector.registerFactory<Widget>(() => HomePage(injector()),
+    injector.registerFactory<Widget>(() => HomePage(injector(), injector()),
         instanceName: AppRoutes.home);
     injector.registerFactory<Widget>(() => LoginPage(injector()),
         instanceName: AppRoutes.login);

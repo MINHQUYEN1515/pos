@@ -16,4 +16,8 @@ extension SharedPreferencesExtension on SharedPreferences {
       return null;
     }
   }
+
+  void setUser(UserPos user) {
+    this.setString(SharedPreferencesKey.user, jsonEncode(user.toJson()));
+  }
 }

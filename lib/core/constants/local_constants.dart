@@ -1,3 +1,5 @@
+import 'enum.dart';
+
 class LocalConstants {
   ///Table ID
   static const int ID_TABLE_PRODUCT = 1;
@@ -17,4 +19,19 @@ class LocalConstants {
 
 class AppConstants {
   static const String KEY = "ASDFGHJKLASDFGHJ";
+  static const Map<int, Screen> screenMap = {
+    0: Screen.setting,
+    1: Screen.restaurent,
+  };
+}
+
+class Constants {
+  // TODO: will update later
+  static const int taxPercent = 0;
+  static const int startIdOfLocalRecord = 100000;
+  static const String commonDateFormat = 'yyyy-MM-dd HH:mm:ss';
+  static const String commonHourFormat = 'HH:mm';
+  static const String commonFullHourFormat = 'HH:mm:ss';
+  static const String dayMonthYearFormat = 'dd-MM-yyyy';
+  static const String yearFirstFormat = 'YYYY-MM-dd';
 }

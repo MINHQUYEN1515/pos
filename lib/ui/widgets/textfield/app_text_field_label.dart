@@ -24,7 +24,7 @@ class AppTextFieldLabel extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? widgetPrefix;
   const AppTextFieldLabel(
-      {Key? key,
+      {super.key,
       this.controller,
       this.lable,
       this.callback,

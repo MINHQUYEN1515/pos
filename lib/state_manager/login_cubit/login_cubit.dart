@@ -26,4 +26,8 @@ class LoginCubit extends Cubit<LoginState> {
     }
     return false;
   }
+
+  Future<bool> isLogin() async {
+    return await _auth.isLogin();
+  }
 }

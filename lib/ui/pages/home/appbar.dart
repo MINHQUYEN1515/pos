@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:pos/core/constants/local_constants.dart';
 import 'package:pos/state_manager/state_manager.dart';
 
 class HomeAppBar extends StatefulWidget {
@@ -15,8 +15,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
   final List<NavigationItem> _navigationItems = [
     NavigationItem(
-      icon: Icons.dashboard,
-      label: 'Dashboard',
+      icon: Icons.settings,
+      label: 'Settings',
     ),
     NavigationItem(
       icon: Icons.restaurant,
@@ -47,9 +47,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final homeCubit = GetIt.I<HomeCubit>();
     return Container(
-      height: 200,
+      height: 90,
       child: Column(
         children: [
           Container(
@@ -169,7 +168,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
                           horizontal: 12, vertical: 4),
                       margin: const EdgeInsets.only(left: 8, right: 16),
                       child: Text(
-                        '${homeCubit.user?.userName}',
+                        '${widget.homeCubit.user?.userName}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -192,6 +191,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
         setState(() {
           _selectedIndex = index;
         });
+        widget.homeCubit.changeScreen(AppConstants.screenMap[index]!);
       },
       child: Container(
         width: 100,

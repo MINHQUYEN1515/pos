@@ -13,3 +13,8 @@ enum TypeKeyBoard {
   normal,
   payment,
 }
+
+enum Screen {
+  setting,
+  restaurent,
+}

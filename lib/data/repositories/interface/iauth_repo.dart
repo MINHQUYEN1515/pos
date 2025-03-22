@@ -4,4 +4,5 @@ abstract class IAuthRepo {
   Future<bool> login({required String password});
   Future<bool> checkLogin();
   Future<void> resgisterUser({required UserPos user});
+  Future<bool> isLogin();
 }

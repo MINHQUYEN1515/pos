@@ -1,1 +1,0 @@
-abstract class ITableService {}

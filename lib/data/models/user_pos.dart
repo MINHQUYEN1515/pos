@@ -3,6 +3,7 @@ class UserPos {
   String? password;
   String? createdAt;
   String? updatedAt;
+  late bool isLogin;
   late String language;
 
   UserPos(
@@ -10,12 +11,14 @@ class UserPos {
       this.password = '',
       this.createdAt,
       this.updatedAt,
+      this.isLogin = false,
       this.language = 'vi'});
   UserPos.fromJson(Map<String, dynamic> json) {
     userName = json['userName'];
     password = json['password'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    isLogin = json['isLogin'];
     language = json['language'] ?? 'vi';
   }
 
@@ -26,6 +29,7 @@ class UserPos {
     data['createdAt'] = createdAt.toString();
     data['updatedAt'] = updatedAt.toString();
     data['language'] = language;
+    data['isLogin'] = isLogin;
     return data;
   }
 }

@@ -35,7 +35,17 @@ class _LoginPageChildState extends State<LoginPageChild> {
   @override
   void initState() {
     _cubit = BlocProvider.of(context);
+    checkLogin();
     super.initState();
+  }
+
+  void checkLogin() {
+    _cubit.isLogin().then((value) {
+      if (value) {
+        Navigator.pushNamed(context, AppRoutes.home);
+      }
+      ;
+    });
   }
 
   @override
