@@ -7,8 +7,8 @@ class TableRepo extends ITableRepo {
   late ITableService _tableService;
   TableRepo(this._tableService);
   @override
-  Future<List<Table>> getAll() async {
-    List<Table> _temp = [];
+  Future<List<TablePos>> getAll() async {
+    List<TablePos> _temp = [];
     try {
       _temp = await _tableService.getAll();
     } catch (e) {
@@ -18,7 +18,7 @@ class TableRepo extends ITableRepo {
   }
 
   @override
-  Future<bool> insertTable(Table table) async {
+  Future<bool> insertTable(TablePos table) async {
     try {
       await _tableService.insert(table);
       return true;
@@ -26,5 +26,14 @@ class TableRepo extends ITableRepo {
       logger.e(e);
     }
     return false;
+  }
+
+  @override
+  Future clear() async {
+    try {
+      await _tableService.clear();
+    } catch (e) {
+      logger.e(e);
+    }
   }
 }

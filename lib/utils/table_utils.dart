@@ -3,14 +3,14 @@ import 'package:pos/extensions/date_time_extension.dart';
 
 class TableUtils {
   TableUtils._();
-  static Table createTable({
+  static TablePos createTable({
     required String tableName,
     required String code,
     required int seats,
     required String position,
     String? imageBase64,
   }) {
-    return Table(
+    return TablePos(
       code: code,
       tableId: tableName,
       seats: seats,

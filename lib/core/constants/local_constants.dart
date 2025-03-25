@@ -23,6 +23,9 @@ class AppConstants {
     0: Screen.setting,
     1: Screen.restaurent,
   };
+  static const String TABLE_USING = "using";
+  static const String TABLE_EMPTY = 'empty';
+  static const String TABLE_ALL = 'all';
 }
 
 class Constants {

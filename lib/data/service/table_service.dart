@@ -5,9 +5,9 @@ import 'package:pos/data/service/interface/table_service.dart';
 import 'package:uuid/uuid.dart';
 
 class TableService extends ITableService {
-  late final Box<Table> _box;
+  late final Box<TablePos> _box;
 
-  TableService() : _box = GetIt.I.get<Box<Table>>();
+  TableService() : _box = GetIt.I.get<Box<TablePos>>();
 
   @override
   Future delete(String id) {
@@ -15,17 +15,17 @@ class TableService extends ITableService {
   }
 
   @override
-  Future<List<Table>> getAll() async {
+  Future<List<TablePos>> getAll() async {
     return _box.values.toList();
   }
 
   @override
-  Future<Table?> getById(String id) {
+  Future<TablePos?> getById(String id) {
     return Future.value(_box.get(id));
   }
 
   @override
-  Future<Table?> insert(Table entity) async {
+  Future<TablePos?> insert(TablePos entity) async {
     try {
       entity = entity.copyWith(hiveId: Uuid().v1());
       await _box.put(entity.hiveId, entity);
@@ -36,7 +36,7 @@ class TableService extends ITableService {
   }
 
   @override
-  Future<Table?> update(Table entity) async {
+  Future<TablePos?> update(TablePos entity) async {
     try {
       await _box.put(entity.hiveId, entity);
       return entity;
@@ -56,7 +56,7 @@ class TableService extends ITableService {
   }
 
   @override
-  Future<bool> insertAll(List<Table> entities) async {
+  Future<bool> insertAll(List<TablePos> entities) async {
     try {
       for (var entity in entities) {
         await insert(entity);

@@ -56,7 +56,7 @@ class _HomePageChildState extends State<HomePageChild> {
               if (state.screen == Screen.setting) {
                 return Expanded(child: SettingPage(widget.settingCubit));
               }
-              return Expanded(child: HomeBody());
+              return Expanded(child: HomeBody(widget.cubit));
             },
           )
         ],

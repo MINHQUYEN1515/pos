@@ -97,27 +97,6 @@ class _ConfigTableState extends State<ConfigTable> {
                       ),
                     ],
                   ),
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                          child: CustomMaterialButton(
-                              onTap: () {},
-                              height: 70,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: appColors(context).black)),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.image)),
-                                  Expanded(
-                                      child: "Chọn hình ảnh".w600(fontSize: 30))
-                                ],
-                              ))),
-                    ],
-                  ),
                 ],
               ),
               Positioned(

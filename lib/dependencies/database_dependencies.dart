@@ -22,12 +22,12 @@ class DatabaseDependencies {
     final orderBox = await Hive.openBox<Order>(LocalConstants.TABLE_ORDER);
     final productBox =
         await Hive.openBox<Product>(LocalConstants.TABLE_PRODUCT);
-    final tableBox = await Hive.openBox<Table>(LocalConstants.TABLE_TABLE);
+    final tableBox = await Hive.openBox<TablePos>(LocalConstants.TABLE_TABLE);
     injector.registerLazySingleton<Box<Bill>>(() => billBox);
     injector.registerLazySingleton<Box<OrderItem>>(() => orderItemBox);
     injector.registerLazySingleton<Box<Order>>(() => orderBox);
     injector.registerLazySingleton<Box<Product>>(() => productBox);
-    injector.registerLazySingleton<Box<Table>>(() => tableBox);
+    injector.registerLazySingleton<Box<TablePos>>(() => tableBox);
   }
 
   static void _registerHiveAdapters(GetIt injector) {
@@ -35,6 +35,6 @@ class DatabaseDependencies {
     Hive.registerAdapter(OrderAdapter());
     Hive.registerAdapter(OrderItemAdapter());
     Hive.registerAdapter(ProductAdapter());
-    Hive.registerAdapter(TableAdapter());
+    Hive.registerAdapter(TablePosAdapter());
   }
 }

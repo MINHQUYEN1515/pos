@@ -33,13 +33,12 @@ class _SettingPageState extends State<SettingPage> {
             flex: 5,
             child: switch (_index) {
               1 => ConfigTable(widget.settingCubit),
-              2 => ConfigProduct(),
+              2 => ConfigProduct(widget.settingCubit),
 
               // TODO: Handle this case.
               int() => throw UnimplementedError(),
             },
           ),
-          
         ],
       ),
     );

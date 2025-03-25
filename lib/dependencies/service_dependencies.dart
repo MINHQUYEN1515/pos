@@ -4,7 +4,8 @@ import '../data/service/service.dart';
 
 class ServiceDependencies {
   static Future setup(GetIt injector) async {
-    injector.registerLazySingleton<IAuthService>(() => AuthService());
-    injector.registerLazySingleton<ITableService>(() => TableService());
+    injector.registerFactory<IAuthService>(() => AuthService());
+    injector.registerFactory<ITableService>(() => TableService());
+    injector.registerFactory<IproductService>(() => ProductService());
   }
 }
