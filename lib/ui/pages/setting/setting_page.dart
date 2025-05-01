@@ -4,6 +4,7 @@ import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/pages/setting/widget/config_product.dart';
 
 import 'widget/config_table.dart';
+import 'widget/create_user.dart';
 import 'widget/menu_setting.dart';
 
 class SettingPage extends StatefulWidget {
@@ -34,6 +35,7 @@ class _SettingPageState extends State<SettingPage> {
             child: switch (_index) {
               1 => ConfigTable(widget.settingCubit),
               2 => ConfigProduct(widget.settingCubit),
+              3 => CreateUser(widget.settingCubit),
 
               // TODO: Handle this case.
               int() => throw UnimplementedError(),

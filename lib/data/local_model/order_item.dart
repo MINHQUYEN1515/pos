@@ -15,18 +15,20 @@ class OrderItem {
   double? amount;
   @HiveField(4, defaultValue: null)
   Product? product;
-  @HiveField(5, defaultValue: 0.0)
-  double? quantity;
+  @HiveField(5, defaultValue: 0)
+  int? quantity;
   @HiveField(6, defaultValue: '')
   String? craetedAt;
   @HiveField(7, defaultValue: '')
   String? updatedAt;
   @HiveField(8, defaultValue: 0.0)
   double? totalAmount;
-  @HiveField(9, defaultValue: 0)
-  int? tableId;
+  @HiveField(9, defaultValue: '')
+  String? tableId;
   @HiveField(10, defaultValue: '')
   String? note;
+  @HiveField(11, defaultValue: '')
+  String? extras;
   OrderItem(
       {this.hiveId,
       this.code,
@@ -38,5 +40,34 @@ class OrderItem {
       this.username,
       this.totalAmount,
       this.tableId,
-      this.note});
+      this.note,
+      this.extras});
+  OrderItem copyWith({
+    String? hiveId,
+    String? code,
+    String? username,
+    double? amount,
+    Product? product,
+    int? quantity,
+    String? craetedAt,
+    String? updatedAt,
+    double? totalAmount,
+    String? tableId,
+    String? note,
+    String? extras,
+  }) {
+    return OrderItem()
+      ..hiveId = hiveId ?? this.hiveId
+      ..code = code ?? this.code
+      ..username = username ?? this.username
+      ..amount = amount ?? this.amount
+      ..product = product ?? this.product
+      ..quantity = quantity ?? this.quantity
+      ..craetedAt = craetedAt ?? this.craetedAt
+      ..updatedAt = updatedAt ?? this.updatedAt
+      ..totalAmount = totalAmount ?? this.totalAmount
+      ..tableId = tableId ?? this.tableId
+      ..note = note ?? this.note
+      ..extras = extras ?? this.extras;
+  }
 }

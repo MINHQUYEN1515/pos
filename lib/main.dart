@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos/app.dart';
 import 'package:pos/dependencies/app_dependencies.dart';
-import 'package:pos/state_manager/register_cubit/register_cubit.dart';
+import 'package:pos/state_manager/login_cubit/login.dart';
 
 import 'data/database/data_base_local.dart';
 
@@ -26,7 +26,7 @@ Future main() async {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
-          return App(GetIt.I.get<RegisterCubit>());
+          return App(GetIt.I.get<LoginCubit>());
         },
       )));
 }

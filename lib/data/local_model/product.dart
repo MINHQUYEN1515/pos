@@ -1,4 +1,5 @@
 import 'package:hive_flutter/adapters.dart';
+import 'package:pos/data/local_model/extra.dart';
 
 import '../../core/constants/local_constants.dart';
 
@@ -22,6 +23,8 @@ class Product {
   String? craetedAt;
   @HiveField(7, defaultValue: '')
   String? updatedAt;
+  @HiveField(8)
+  List<Extra>? extras;
   Product(
       {this.hiveId,
       this.name,
@@ -30,26 +33,27 @@ class Product {
       this.code,
       this.image,
       this.craetedAt,
-      this.updatedAt});
-  Product copyWith({
-    String? hiveId,
-    String? name,
-    double? price,
-    String? type,
-    String? code,
-    String? image,
-    String? craetedAt,
-    String? updatedAt,
-  }) {
+      this.updatedAt,
+      this.extras});
+  Product copyWith(
+      {String? hiveId,
+      String? name,
+      double? price,
+      String? type,
+      String? code,
+      String? image,
+      String? craetedAt,
+      String? updatedAt,
+      List<Extra>? extras}) {
     return Product(
-      hiveId: hiveId ?? this.hiveId,
-      name: name ?? this.name,
-      price: price ?? this.price,
-      type: type ?? this.type,
-      code: code ?? this.code,
-      image: image ?? this.image,
-      craetedAt: craetedAt ?? this.craetedAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
+        hiveId: hiveId ?? this.hiveId,
+        name: name ?? this.name,
+        price: price ?? this.price,
+        type: type ?? this.type,
+        code: code ?? this.code,
+        image: image ?? this.image,
+        craetedAt: craetedAt ?? this.craetedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        extras: extras ?? this.extras);
   }
 }

@@ -1,14 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos/core/routes/app_route.dart';
-import 'package:pos/state_manager/register_cubit/register.dart';
-import 'package:pos/ui/pages/splash/splash.dart';
+import 'package:pos/state_manager/login_cubit/login.dart';
+import 'package:pos/ui/pages/page.dart';
+
+import 'core/constants/local_constants.dart';
 
 class App extends StatefulWidget {
-  final RegisterCubit registerCubit;
-  const App(this.registerCubit, {super.key});
+  final LoginCubit loginCubit;
+  const App(this.loginCubit, {super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -17,8 +18,9 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      initialRoute: AppRoutes.splash,
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      initialRoute: AppRoutes.login,
       onGenerateRoute: (settings) => AppRoutes.getRoute(settings),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -31,7 +33,7 @@ class _AppState extends State<App> {
       builder: (context, child) {
         return child!;
       },
-      home: Scaffold(body: SplashPage()),
+      home: Scaffold(body: LoginPage(widget.loginCubit)),
     );
   }
 }

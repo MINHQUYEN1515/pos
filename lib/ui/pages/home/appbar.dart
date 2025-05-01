@@ -168,7 +168,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
                           horizontal: 12, vertical: 4),
                       margin: const EdgeInsets.only(left: 8, right: 16),
                       child: Text(
-                        '${widget.homeCubit.user?.userName}',
+                        '${widget.homeCubit.user?.username}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

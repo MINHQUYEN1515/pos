@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:pos/core/constants/text_style_constants.dart';
 import 'package:pos/core/routes/app_route.dart';
+import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/login_cubit/login_cubit.dart';
 import 'package:pos/theme/colors.dart';
+import 'package:pos/ui/widgets/button/custom_material_button.dart';
+import 'package:pos/ui/widgets/dialog/app_dialog.dart';
+import 'package:pos/ui/widgets/textfield/app_text_field_label.dart';
 import 'package:process_run/process_run.dart';
-
-import '../../widgets/keyboard/keyboard_custom.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginCubit loginCubit;
@@ -32,6 +33,7 @@ class LoginPageChild extends StatefulWidget {
 class _LoginPageChildState extends State<LoginPageChild> {
   late LoginCubit _cubit;
   final TextEditingController _password = TextEditingController();
+  final TextEditingController _username = TextEditingController();
   @override
   void initState() {
     _cubit = BlocProvider.of(context);
@@ -76,25 +78,67 @@ class _LoginPageChildState extends State<LoginPageChild> {
                 SizedBox(
                   height: 10,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: KeyboardCustom(
-                        heightKey: 100,
-                        controller: _password,
-                        onConfirm: (value) async {
-                          bool isCheck = await _cubit.login(password: value);
-                          if (isCheck) {
-                            Navigator.pushNamed(context, AppRoutes.home);
-                          }
-                        },
-                        title: "Nhập password",
-                        decoration: BoxDecoration(
-                            color: appColors(context).white.withOpacity(0.5)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 300,
+                          color: appColors(context).white,
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            children: [
+                              AppTextFieldLabel(
+                                controller: _username,
+                                height: 60,
+                                width: double.infinity,
+                                lable: "Username",
+                              ),
+                              AppTextFieldLabel(
+                                controller: _password,
+                                height: 60,
+                                width: double.infinity,
+                                lable: "Password",
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              CustomMaterialButton(
+                                  onTap: () {
+                                    if (_username.text.isEmpty ||
+                                        _password.text.isEmpty) {
+                                      AppDialogCustomer.showConfirmDialog(
+                                          "Vui lòng nhập username và pasword");
+                                    }
+                                    _cubit
+                                        .login(
+                                            password: _password.text,
+                                            username: _username.text)
+                                        .then((value) {
+                                      if (value) {
+                                        Navigator.pushNamed(
+                                            context, AppRoutes.home);
+                                      } else {
+                                        AppDialogCustomer.showConfirmDialog(
+                                            "Username hoặc password không đúng");
+                                      }
+                                    });
+                                  },
+                                  height: 60,
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: appColors(context).primaryColor),
+                                  child: "Đăng nhập".w500(
+                                      fontSize: 30,
+                                      color: appColors(context).white))
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    Expanded(child: SizedBox())
-                  ],
+                      Expanded(child: SizedBox())
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 30,

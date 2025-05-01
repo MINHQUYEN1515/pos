@@ -42,6 +42,18 @@ class _MenuSettingState extends State<MenuSetting> {
           widget.onChangeScreen?.call(_index);
         }),
         _buildButton(3,
+            title: "Cài đặt nhân viên",
+            icons: Icon(
+              Icons.people,
+              size: 30,
+              color: appColors(context).white,
+            ), callBack: () {
+          setState(() {
+            _index = 3;
+          });
+          widget.onChangeScreen?.call(_index);
+        }),
+        _buildButton(4,
             title: "Cài đặt hệ thống",
             icons: Icon(
               Icons.settings_system_daydream,

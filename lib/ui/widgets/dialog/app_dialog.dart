@@ -1,72 +1,127 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:pos/core/constants/local_constants.dart';
+import 'package:pos/extensions/text_ext_customize.dart';
+import 'package:pos/extensions/textstyle_extension.dart';
+import 'package:pos/theme/colors.dart';
+import 'package:pos/ui/widgets/button/custom_material_button.dart';
 
-// import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:get/get.dart';
-import 'package:pos/ui/widgets/button/app_button.dart';
-
-class AppDialog {
-  static void defaultDialog({
-    String title = "Thông báo",
-    String message = "",
-    String? textConfirm,
-    String? textCancel,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
-  }) {
-    Get.defaultDialog(
-      title: title,
-      radius: 10,
-      content: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Text(
-          "$message \n",
-          textAlign: TextAlign.center,
-        ),
-      ),
-      onConfirm: onConfirm == null
-          ? null
-          : () {
-              Get.back();
-              onConfirm.call();
-            },
-      onCancel: onCancel == null
-          ? null
-          : () {
-              Get.back();
-              onCancel.call();
-            },
-      textConfirm: textConfirm,
-      textCancel: textCancel,
-      confirm: (textConfirm ?? "").isEmpty
-          ? null
-          : AppButton(
-              cornerRadius: 5,
-              height: 50,
-              width: 100,
-              backgroundColor: const Color.fromARGB(255, 238, 145, 138),
-              title: textConfirm ?? "",
-              onPressed: () {
-                Get.back();
-                onConfirm?.call();
-              },
+class AppDialogCustomer {
+  static void showConfirmDialog(String message) {
+    showDialog(
+      context: navigatorKey.currentState!.overlay!.context,
+      builder: (context) {
+        return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
             ),
-      cancel: (textCancel ?? "").isEmpty
-          ? null
-          : AppButton(
-              cornerRadius: 5,
-              height: 50,
-              width: 100,
-              backgroundColor: const Color.fromARGB(255, 148, 197, 237),
-              title: textCancel ?? "",
-              onPressed: () {
-                Get.back();
-                onCancel?.call();
-              },
-            ),
-      confirmTextColor: Colors.black,
-      cancelTextColor: Colors.black,
-      titlePadding: const EdgeInsets.only(top: 20),
-      contentPadding: const EdgeInsets.symmetric(vertical: 20),
+            child: Container(
+              // padding: EdgeInsets.all(16),
+              height: 150,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    height: 40,
+                    decoration:
+                        BoxDecoration(color: appColors(context).primaryColor),
+                    child: '${'notification'.tr()}'
+                        .w400(fontSize: 25, color: appColors(context).white),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: message.w400(
+                          fontSize: 20,
+                          config:
+                              TextStyleExtConfig(textAlign: TextAlign.center)),
+                    ),
+                  ),
+                ],
+              ),
+            ));
+      },
     );
+  }
+
+  static Future showDefaultDialog(String message,
+      {VoidCallback? onClose, VoidCallback? onConfirm}) async {
+    await showDialog(
+      context: navigatorKey.currentState!.overlay!.context,
+      builder: (context) {
+        return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            child: Container(
+              // padding: EdgeInsets.all(16),
+              height: 200,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    height: 40,
+                    decoration:
+                        BoxDecoration(color: appColors(context).primaryColor),
+                    child: '${'notification'.tr()}'
+                        .w400(fontSize: 25, color: appColors(context).white),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: message.w400(
+                          fontSize: 20,
+                          config:
+                              TextStyleExtConfig(textAlign: TextAlign.center)),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                            child: CustomMaterialButton(
+                                onTap: () async {
+                                  onClose?.call();
+                                  Navigator.pop(context);
+                                },
+                                alignment: Alignment.center,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: appColors(context).primaryColor75),
+                                child: '${'cancel'.tr()}'.w500(
+                                    fontSize: 20,
+                                    color: appColors(context).white))),
+                        Expanded(
+                            child: CustomMaterialButton(
+                                onTap: () {
+                                  onConfirm?.call();
+                                  Navigator.pop(context);
+                                },
+                                alignment: Alignment.center,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: appColors(context).primaryColor50),
+                                child: '${'confirmed'.tr()}'.w500(
+                                    fontSize: 20,
+                                    color: appColors(context).white))),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ));
+      },
+    );
+  }
+
+  static void closeAll() {
+    Navigator.of(navigatorKey.currentState!.overlay!.context)
+        .popUntil((route) => route.isFirst);
   }
 }

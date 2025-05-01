@@ -1,3 +1,4 @@
+import 'package:pos/data/local_model/extra.dart';
 import 'package:pos/data/local_model/local_model.dart';
 import 'package:pos/extensions/date_time_extension.dart';
 import 'package:uuid/uuid.dart';
@@ -8,7 +9,8 @@ class ProductUtils {
       {required String name,
       required double price,
       required String type,
-      required String code}) {
+      required String code,
+      List<Extra>? extras}) {
     return Product(
         hiveId: Uuid().v4(),
         name: name,
@@ -16,6 +18,7 @@ class ProductUtils {
         type: type,
         code: code,
         craetedAt: DateTime.now().format(),
-        updatedAt: DateTime.now().format());
+        updatedAt: DateTime.now().format(),
+        extras: extras);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
 import 'package:pos/data/local_model/local_model.dart';
-import 'package:pos/data/local_model/table.dart';
+import 'package:pos/data/repositories/interface/iauth_repo.dart';
 import 'package:pos/data/repositories/interface/iproduct_repo.dart';
 import 'package:pos/data/repositories/interface/table_repo.dart';
 import 'package:pos/state_manager/setting_cubit/setting_state.dart';
@@ -9,11 +9,14 @@ import 'package:pos/ui/widgets/dialog/app_dialog.dart';
 import 'package:pos/utils/logger.dart';
 import 'package:pos/utils/product_utils.dart';
 import 'package:pos/utils/table_utils.dart';
+import 'package:uuid/uuid.dart';
 
 class SettingCubit extends Cubit<SettingState> {
   final ITableRepo _tableRepo;
   final IProductRepo _productRepo;
-  SettingCubit(this._tableRepo, this._productRepo) : super(SettingState());
+  final IAuthRepo _auth;
+  SettingCubit(this._tableRepo, this._productRepo, this._auth)
+      : super(SettingState());
   void craeteTable({
     required String tableName,
     required String code,
@@ -31,25 +34,83 @@ class SettingCubit extends Cubit<SettingState> {
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
       logger.e(e);
-      AppDialog.defaultDialog(message: "Vui lòng nhập đúng định dạng");
+      AppDialogCustomer.showConfirmDialog("Vui lòng nhập đúng định dạng");
     }
   }
 
-  void createProduct(
+  Future<bool> createProduct(
       {required String name,
       required double price,
       required String type,
-      required String code}) async {
+      required String code,
+      String? codeExtra,
+      double? priceExtra}) async {
     emit(state.copyWith(status: LoadStatus.loading));
+
     Product product = ProductUtils.createProduct(
-        name: name, price: price, type: type, code: code);
+        name: name,
+        price: price,
+        type: type,
+        code: code,
+        extras: (codeExtra != null && codeExtra != '' && priceExtra != 0)
+            ? [
+                Extra(
+                    hiveId: Uuid().v1(),
+                    createdAt: DateTime.now(),
+                    name: codeExtra,
+                    price: priceExtra ?? 0)
+              ]
+            : []);
     try {
-      await _productRepo.insertData(product: product);
-      emit(state.copyWith(status: LoadStatus.success));
+      var data = await _productRepo.insertData(product: product);
+      loadProduct();
+      return true;
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
       logger.e(e);
-      AppDialog.defaultDialog(message: "Vui lòng nhập đúng định dạng");
+      AppDialogCustomer.showConfirmDialog("Vui lòng nhập đúng định dạng");
+      return false;
     }
+  }
+
+  void loadTable() async {
+    emit(state.copyWith(status: LoadStatus.loading));
+    try {
+      var data = await _tableRepo.getAll();
+      emit(state.copyWith(status: LoadStatus.success, table: data));
+    } catch (e) {
+      emit(state.copyWith(status: LoadStatus.failure));
+    }
+  }
+
+  void loadProduct() async {
+    emit(state.copyWith(status: LoadStatus.loading));
+    try {
+      var data = await _productRepo.getAll();
+      emit(state.copyWith(status: LoadStatus.success, product: data));
+    } catch (e) {
+      emit(state.copyWith(status: LoadStatus.failure));
+    }
+  }
+
+  void loadUser() async {
+    emit(state.copyWith(status: LoadStatus.loading));
+    try {
+      var data = await _auth.getAll();
+      data = data.where((e) => e.permission != Permission.admin).toList();
+      emit(state.copyWith(status: LoadStatus.success, users: data));
+    } catch (e) {
+      emit(state.copyWith(status: LoadStatus.failure));
+    }
+  }
+
+  void deleteProduct({required String hiveId}) async {
+    await _productRepo.delete(hiveId: hiveId);
+    loadProduct();
+  }
+
+  void updateProduct({required Product product}) async {
+    await _productRepo.updateProduct(product: product);
+    loadProduct();
   }
 }

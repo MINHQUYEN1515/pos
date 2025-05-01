@@ -4,10 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'route_arguments.dart';
 
 class AppRoutes {
-  static String get splash => '/';
+  static String get login => '/';
   static String get register => '/register';
   static String get home => '/home';
-  static String get login => '/login';
+  static String get tableDetai => '/tableDetai';
 
   static List<String> transparentRoutes = [];
   static getRoute(RouteSettings settings) {

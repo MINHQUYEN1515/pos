@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
 import 'package:pos/core/constants/local_constants.dart';
+import 'package:pos/core/routes/app_route.dart';
 import 'package:pos/data/local_model/table.dart';
 import 'package:pos/extensions/number_extension.dart';
 import 'package:pos/extensions/textstyle_extension.dart';
@@ -58,12 +59,11 @@ class _HomeBodyState extends State<HomeBody> {
                       buildWhen: (previous, current) =>
                           previous.tables.length != current.tables.length,
                       builder: (context, state) {
-                        return 'Tất cả bàn (${widget.homeCubit.tables.length})'
-                            .w500(
-                                fontSize: 20,
-                                color: _index == 0
-                                    ? appColors(context).white
-                                    : appColors(context).primaryColor);
+                        return 'Tất cả bàn (${state.tables.length})'.w500(
+                            fontSize: 20,
+                            color: _index == 0
+                                ? appColors(context).white
+                                : appColors(context).primaryColor);
                       },
                     ),
                   ),
@@ -136,7 +136,10 @@ class _HomeBodyState extends State<HomeBody> {
                       crossAxisCount: 10),
                   itemBuilder: (context, index) {
                     final data = widget.homeCubit.tables[index];
-                    return buildTable(data);
+                    return buildTable(data, () {
+                      Navigator.pushNamed(context, AppRoutes.tableDetai,
+                          arguments: data);
+                    });
                   },
                 );
               },
@@ -149,15 +152,18 @@ class _HomeBodyState extends State<HomeBody> {
           color: const Color(0xFF22555D),
           child: Row(
             children: [
-              buildNavButton('Khu vực 1'),
-              buildNavButton('Khu vực 2'),
-              buildNavButton('Mang về'),
-              const Spacer(),
-              buildNavButton('Số dự bàn', icon: Icons.assignment),
-              buildNavButton('Thanh toán', icon: Icons.payment),
-              buildNavButton('Đặt/giữ bàn', icon: Icons.event_seat),
-              buildNavButton('Hóa đơn', icon: Icons.receipt),
-              buildNavButton('Bàn phím', icon: Icons.keyboard),
+              buildNavButton("Trong nhà", () {
+                widget.homeCubit.changePosition(AppConstants.TRONG_NHA);
+              }),
+              buildNavButton("Ngoài nhà", () {
+                widget.homeCubit.changePosition(AppConstants.NGOAI_NHA);
+              }),
+              // const Spacer(),
+              // buildNavButton('Số dự bàn', icon: Icons.assignment),
+              // buildNavButton('Thanh toán', icon: Icons.payment),
+              // buildNavButton('Đặt/giữ bàn', icon: Icons.event_seat),
+              // buildNavButton('Hóa đơn', icon: Icons.receipt),
+              // buildNavButton('Bàn phím', icon: Icons.keyboard),
             ],
           ),
         ),
@@ -165,7 +171,7 @@ class _HomeBodyState extends State<HomeBody> {
     );
   }
 
-  Widget buildTable(TablePos table) {
+  Widget buildTable(TablePos table, VoidCallback onTap) {
     Color tableColor;
     Color textColor = Colors.black;
 
@@ -184,6 +190,9 @@ class _HomeBodyState extends State<HomeBody> {
     }
 
     return CustomMaterialButton(
+      onTap: () {
+        onTap.call();
+      },
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: tableColor,
@@ -209,14 +218,12 @@ class _HomeBodyState extends State<HomeBody> {
                     fontSize: 16,
                   ),
                 ),
-                Positioned(
-                    bottom: 0,
-                    left: 15,
-                    child: Row(
-                      children: [
-                        
-                      ],
-                    ))
+                // Positioned(
+                //     bottom: 0,
+                //     left: 15,
+                //     child: Row(
+                //       children: [],
+                //     ))
               ],
             ),
           ),
@@ -225,8 +232,11 @@ class _HomeBodyState extends State<HomeBody> {
     );
   }
 
-  Widget buildNavButton(String title, {IconData? icon}) {
-    return Container(
+  Widget buildNavButton(String title, VoidCallback callBack, {IconData? icon}) {
+    return CustomMaterialButton(
+      onTap: () {
+        callBack.call();
+      },
       padding: EdgeInsets.symmetric(
           horizontal: icon != null ? 12 : 24, vertical: 16),
       decoration: BoxDecoration(

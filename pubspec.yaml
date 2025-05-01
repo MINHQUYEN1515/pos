@@ -37,7 +37,6 @@ dependencies:
   
   #state mananger
   flutter_bloc: ^9.0.0
-  get: ^4.7.2
   equatable: ^2.0.7
 
   #store

@@ -41,7 +41,7 @@ class _AppDropButtonState extends State<AppDropButton> {
   late String _currentValue;
   @override
   void initState() {
-    _currentValue = widget.items[0].toUpperCase();
+    _currentValue = widget.value!;
 
     super.initState();
   }
@@ -82,14 +82,15 @@ class _AppDropButtonState extends State<AppDropButton> {
                 borderRadius: BorderRadius.all(
                     Radius.circular(widget.borderRadius ?? 10))),
             child: DropdownButton<String>(
+              value: _currentValue,
               focusColor: Colors.transparent,
-              isDense: true,
+              // isDense: true,
               underline: Container(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      widget.value ?? _currentValue,
+                      "",
                       style: TextStyle(
                           fontSize: widget.fontSize ?? 25,
                           color: appColors(context).black,
@@ -110,7 +111,7 @@ class _AppDropButtonState extends State<AppDropButton> {
               }).toList(),
               onChanged: (String? value) {
                 setState(() {
-                  _currentValue = value!.toUpperCase();
+                  _currentValue = value!;
                 });
                 widget.onChange?.call(value!);
               },

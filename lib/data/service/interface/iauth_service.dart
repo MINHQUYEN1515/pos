@@ -1,7 +1,6 @@
-import 'package:pos/data/models/user_pos.dart';
+import '../../local_model/user_local.dart';
 
 abstract class IAuthService {
-  Future<void> saveInfoPos({required String password});
-  UserPos? getInfo();
-  Future<void> registerDevice({required UserPos user});
+  Future<UserLocal?> registerUser({required UserLocal user});
+  Future<bool> login({required UserLocal user});
 }

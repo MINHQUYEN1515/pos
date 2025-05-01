@@ -6,8 +6,10 @@ import '../data/repositories/repo.dart';
 
 class RepositoriesDependencies {
   static Future setup(GetIt injector) async {
-    injector.registerFactory<IAuthRepo>(() => AuthRepo(injector(), injector()));
+    injector.registerFactory<IAuthRepo>(
+        () => AuthRepo(injector(), injector(), injector()));
     injector.registerFactory<ITableRepo>(() => TableRepo(injector()));
     injector.registerFactory<IProductRepo>(() => ProductRepo(injector()));
+    injector.registerFactory<IOrderItemRepo>(() => OrderItemRepo(injector()));
   }
 }

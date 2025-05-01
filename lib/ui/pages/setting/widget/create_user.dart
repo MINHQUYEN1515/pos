@@ -1,47 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
-import 'package:pos/core/constants/local_constants.dart';
+
 import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/state_manager.dart';
 import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/widgets/button/app_drop_button.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
-import 'package:pos/ui/widgets/dialog/app_dialog.dart';
 import 'package:pos/ui/widgets/textfield/app_text_field_label.dart';
-import 'package:pos/utils/logger.dart';
 
-class ConfigTable extends StatefulWidget {
+class CreateUser extends StatefulWidget {
   final SettingCubit settingCubit;
-  const ConfigTable(this.settingCubit, {super.key});
+  const CreateUser(this.settingCubit, {super.key});
 
   @override
-  State<ConfigTable> createState() => _ConfigTableState();
+  State<CreateUser> createState() => _CreateUserState();
 }
 
-class _ConfigTableState extends State<ConfigTable> {
-  final TextEditingController _name = TextEditingController();
-  final TextEditingController _seats = TextEditingController();
-  final TextEditingController _code = TextEditingController();
-  final TextEditingController _position = TextEditingController();
-  final Map<String, String> valueMap = {
-    "Trong nhà": AppConstants.TRONG_NHA,
-    "Ngoài nhà": AppConstants.NGOAI_NHA
-  };
-  String _value = "Trong nhà";
+class _CreateUserState extends State<CreateUser> {
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _type = TextEditingController();
+
   @override
   void initState() {
-    _position.text = "trongnha";
-    widget.settingCubit.loadTable();
+    widget.settingCubit.loadUser();
     super.initState();
   }
 
   @override
   void dispose() {
-    _name.dispose();
-    _seats.dispose();
-    _code.dispose();
-    _position.dispose();
+    _username.dispose();
+    _password.dispose();
+    _type.dispose();
     super.dispose();
   }
 
@@ -67,22 +58,22 @@ class _ConfigTableState extends State<ConfigTable> {
                     children: [
                       Expanded(
                         child: AppTextFieldLabel(
-                          lable: "Tên bàn",
+                          lable: "Tên nhân viên",
                           borderRadius: 0,
-                          hintText: "Tên bàn",
+                          hintText: "Tên nhân viên",
                           hintStyle:
                               TextStyle(color: appColors(context).grey25),
-                          controller: _name,
+                          controller: _username,
                         ),
                       ),
                       Expanded(
                         child: AppTextFieldLabel(
-                          lable: "Số ghế",
+                          lable: "Password",
                           borderRadius: 0,
-                          hintText: "Số ghế",
+                          hintText: "Password",
                           hintStyle:
                               TextStyle(color: appColors(context).grey25),
-                          controller: _seats,
+                          controller: _password,
                         ),
                       ),
                     ],
@@ -91,31 +82,13 @@ class _ConfigTableState extends State<ConfigTable> {
                     spacing: 10,
                     children: [
                       Expanded(
-                        child: AppTextFieldLabel(
-                          lable: "Mã bàn",
-                          borderRadius: 0,
-                          hintText: "Mã bàn",
-                          hintStyle:
-                              TextStyle(color: appColors(context).grey25),
-                          controller: _code,
-                        ),
-                      ),
-                      Expanded(
                         child: AppDropButton(
                           height: 60,
-                          items: ["Trong nhà", "Ngoài nhà"],
-                          lable: "Vị trí",
+                          items: ['Admin', "Employee", "Cash"],
+                          lable: "Vai trò",
                           borderRadius: 0,
-                          value: _value,
-                          onChange: (value) {
-                            _position.text = valueMap[value]!;
-
-                            logger.i(_position.text);
-                          },
-                          // hintText: "Vị trí",
-                          // hintStyle:
-                          //     TextStyle(color: appColors(context).grey25),
-                          // controller: _position,
+                          value: "Admin",
+                          onChange: (value) {},
                         ),
                       ),
                     ],
@@ -126,19 +99,7 @@ class _ConfigTableState extends State<ConfigTable> {
                   bottom: 0,
                   right: 0,
                   child: CustomMaterialButton(
-                      onTap: () {
-                        try {
-                          int seat = int.parse(_seats.text);
-                          widget.settingCubit.craeteTable(
-                              tableName: _name.text,
-                              code: _code.text,
-                              seats: seat,
-                              position: _position.text);
-                        } catch (e) {
-                          AppDialogCustomer.showConfirmDialog(
-                              "Vui lòng nhập đúng định dạng so ghe");
-                        }
-                      },
+                      onTap: () {},
                       height: 70,
                       width: 120,
                       decoration: BoxDecoration(

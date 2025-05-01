@@ -1,8 +1,8 @@
-import 'package:pos/data/models/user_pos.dart';
+import '../../local_model/user_local.dart';
 
 abstract class IAuthRepo {
-  Future<bool> login({required String password});
-  Future<bool> checkLogin();
-  Future<void> resgisterUser({required UserPos user});
+  Future<UserLocal?> registerUser({required UserLocal user});
+  Future<bool> login({required UserLocal user});
   Future<bool> isLogin();
+  Future<List<UserLocal>> getAll();
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
+import 'package:pos/data/local_model/user_local.dart';
 import 'package:pos/state_manager/login_cubit/login.dart';
 import 'package:pos/ui/widgets/dialog/app_dialog.dart';
 
@@ -9,25 +10,30 @@ class LoginCubit extends Cubit<LoginState> {
   late final IAuthRepo _auth;
   LoginCubit(this._auth) : super(const LoginState());
 
-  Future<bool> login({required String password}) async {
+  Future<bool> login(
+      {required String password, required String username}) async {
     emit(state.copyWith(status: LoadStatus.loading));
     try {
-      bool user = await _auth.login(password: password);
+      bool user = await _auth.login(
+          user: UserLocal(username: username, password: password));
       if (user) {
         emit(state.copyWith(status: LoadStatus.success));
-        AppDialog.defaultDialog(message: "LOGIN SUCCESS");
+        AppDialogCustomer.showConfirmDialog("LOGIN SUCCESS");
         return true;
       }
-      AppDialog.defaultDialog(message: "LOGIN FAILD");
       return false;
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
-      AppDialog.defaultDialog(message: "$e");
+      AppDialogCustomer.showConfirmDialog("$e");
     }
     return false;
   }
 
   Future<bool> isLogin() async {
-    return await _auth.isLogin();
+    if (await _auth.isLogin()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

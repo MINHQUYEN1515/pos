@@ -1,44 +1,42 @@
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:pos/data/local_model/product.dart';
-import 'package:pos/data/service/interface/iproduct_service.dart';
-import 'package:pos/utils/logger.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:pos/data/local_model/user_local.dart';
 import 'package:uuid/uuid.dart';
 
-class ProductService extends IproductService {
-  late final Box<Product> _box;
+import 'interface/user_service.dart';
 
-  ProductService() : _box = GetIt.I.get<Box<Product>>();
+class UserService extends IUserService {
+  late final Box<UserLocal> _box;
 
+  UserService() : _box = GetIt.I.get<Box<UserLocal>>();
   @override
   Future delete(String id) {
     return Future.value(_box.delete(id));
   }
 
   @override
-  Future<List<Product>> getAll() async {
+  Future<List<UserLocal>> getAll() async {
     return _box.values.toList();
   }
 
   @override
-  Future<Product?> getById(String id) {
+  Future<UserLocal?> getById(String id) {
     return Future.value(_box.get(id));
   }
 
   @override
-  Future<Product?> insert(Product entity) async {
+  Future<UserLocal?> insert(UserLocal entity) async {
     try {
       entity = entity.copyWith(hiveId: Uuid().v1());
       await _box.put(entity.hiveId, entity);
       return entity;
     } catch (e) {
-      logger.e(e);
       return null;
     }
   }
 
   @override
-  Future<Product?> update(Product entity) async {
+  Future<UserLocal?> update(UserLocal entity) async {
     try {
       await _box.put(entity.hiveId, entity);
       return entity;
@@ -58,7 +56,7 @@ class ProductService extends IproductService {
   }
 
   @override
-  Future<bool> insertAll(List<Product> entities) async {
+  Future<bool> insertAll(List<UserLocal> entities) async {
     try {
       for (var entity in entities) {
         await insert(entity);

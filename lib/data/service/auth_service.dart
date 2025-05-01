@@ -1,36 +1,56 @@
-import 'dart:convert';
-
-import 'package:pos/core/constants/database_key.dart';
-import 'package:pos/data/database/data_base_local.dart';
-import 'package:pos/data/models/user_pos.dart';
+import 'package:pos/data/local_model/user_local.dart';
 import 'package:pos/data/service/interface/iauth_service.dart';
+import 'package:pos/data/service/interface/user_service.dart';
+import 'package:pos/extensions/shared_preference_extension.dart';
+import 'package:pos/ui/widgets/dialog/app_dialog.dart';
+import 'package:pos/utils/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService extends IAuthService {
-  final _database = DataBaseLocal.instance;
-  @override
-  Future<void> saveInfoPos({required String password}) async {
-    UserPos pos = UserPos(
-        password: password,
-        createdAt: DateTime.now().toString(),
-        updatedAt: DateTime.now().toString());
-    await _database.setString(DatabaseKey.user, jsonEncode(pos));
-  }
+  late IUserService _userService;
+  late SharedPreferences _pref;
+  AuthService(this._userService, this._pref);
 
   @override
-  UserPos? getInfo() {
+  Future<bool> login({required UserLocal user}) async {
     try {
-      final data = _database.getString(DatabaseKey.user);
-      if (data == null) return null;
-
-      final userMap = jsonDecode(data) as Map<String, dynamic>;
-      return UserPos.fromJson(userMap);
+      List<UserLocal> users = await _userService.getAll();
+      bool flag = false;
+      users.forEach((e) {
+        if (e.username == user.username && e.password == user.password) {
+          flag = true;
+          _pref.setUser(e);
+        }
+      });
+      if (flag) {
+        return true;
+      }
     } catch (e) {
-      return null;
+      logger.e(e);
     }
+    return false;
   }
 
   @override
-  Future<void> registerDevice({required UserPos user}) async {
-    await _database.setString(DatabaseKey.user, jsonEncode(user.toJson()));
+  Future<UserLocal?> registerUser({required UserLocal user}) async {
+    try {
+      List<UserLocal> users = await _userService.getAll();
+      bool flag = false;
+      users.forEach((e) {
+        if (e.username == user.username) {
+          AppDialogCustomer.showDefaultDialog("User name đã tồn tại!");
+          flag = true;
+        }
+      });
+      if (flag) {
+        return null;
+      } else {
+        await _userService.insert(user);
+        return user;
+      }
+    } catch (e) {
+      logger.e(e);
+    }
+    return null;
   }
 }

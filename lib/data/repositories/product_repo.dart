@@ -18,10 +18,30 @@ class ProductRepo extends IProductRepo {
   }
 
   @override
-  Future<bool> insertData({required Product product}) async {
+  Future<Product?> insertData({required Product product}) async {
     try {
-      await _service.insert(product);
-      return true;
+      return await _service.insert(product);
+    } catch (e) {
+      logger.e(e);
+    }
+    return null;
+  }
+
+  @override
+  Future<bool> delete({required String hiveId}) async {
+    try {
+      return await _service.delete(hiveId);
+    } catch (e) {
+      logger.e(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> updateProduct({required Product product}) async {
+    try {
+      await _service.update(product);
+      return false;
     } catch (e) {
       logger.e(e);
       return false;
