@@ -36,4 +36,25 @@ class TableRepo extends ITableRepo {
       logger.e(e);
     }
   }
+
+  @override
+  Future<bool> deleteTable({required String id}) async {
+    try {
+      return await _tableService.delete(id);
+    } catch (e) {
+      logger.e(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> updateTable({required TablePos table}) async {
+    try {
+      await _tableService.update(table);
+      return true;
+    } catch (e) {
+      logger.e(e);
+      return false;
+    }
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pos/core/constants/local_constants.dart';
+import 'package:pos/core/routes/app_route.dart';
+import 'package:pos/data/local_model/local_model.dart';
 import 'package:pos/state_manager/state_manager.dart';
 
 class HomeAppBar extends StatefulWidget {
@@ -13,37 +15,53 @@ class HomeAppBar extends StatefulWidget {
 class _HomeAppBarState extends State<HomeAppBar> {
   int _selectedIndex = 1;
 
-  final List<NavigationItem> _navigationItems = [
-    NavigationItem(
-      icon: Icons.settings,
-      label: 'Settings',
-    ),
-    NavigationItem(
-      icon: Icons.restaurant,
-      label: 'Restaurant',
-      isSelected: true,
-    ),
-    NavigationItem(
-      icon: Icons.receipt,
-      label: 'Đặt bàn',
-    ),
-    NavigationItem(
-      icon: Icons.local_cafe,
-      label: 'Bubble Tea',
-    ),
-    NavigationItem(
-      icon: Icons.fastfood,
-      label: 'Quick Service',
-    ),
-    NavigationItem(
-      icon: Icons.shopping_cart,
-      label: 'Online Shop',
-    ),
-    NavigationItem(
-      icon: Icons.delivery_dining,
-      label: 'Quỹ tiền mặt',
-    ),
-  ];
+  List<NavigationItem> _navigationItems = [];
+  @override
+  void initState() {
+    super.initState();
+    _navigationItems.addAll([
+      NavigationItem(
+          id: 1,
+          icon: Icons.settings,
+          label: 'Settings',
+          isActive: widget.homeCubit.user?.permission == Permission.admin),
+      NavigationItem(
+          id: 2,
+          icon: Icons.restaurant,
+          label: 'Restaurant',
+          isSelected: true,
+          isActive: widget.homeCubit.user?.permission == Permission.user),
+      NavigationItem(
+          id: 3,
+          icon: Icons.change_circle,
+          label: 'Đổi bàn',
+          isActive: widget.homeCubit.user?.permission == Permission.user),
+      NavigationItem(
+          id: 4,
+          icon: Icons.merge_outlined,
+          label: 'Gộp bàn',
+          isActive: widget.homeCubit.user?.permission == Permission.user),
+      NavigationItem(
+          id: 5,
+          icon: Icons.table_chart,
+          label: 'Doanh thu',
+          isActive: widget.homeCubit.user?.permission == Permission.admin),
+      NavigationItem(
+        id: 6,
+        icon: Icons.logout,
+        label: 'Đăng xuất',
+        isActive: true,
+        callback: () {
+          widget.homeCubit.logout(context).then((value) {
+            Navigator.pushReplacementNamed(context, AppRoutes.login);
+          });
+        },
+      ),
+    ]);
+    _selectedIndex =
+        widget.homeCubit.user?.permission == Permission.admin ? 5 : 2;
+    _navigationItems = _navigationItems.where((e) => e.isActive).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,14 +202,18 @@ class _HomeAppBarState extends State<HomeAppBar> {
   }
 
   Widget _buildNavigationItem(NavigationItem item, int index) {
-    bool isSelected = index == _selectedIndex;
+    bool isSelected = item.id == _selectedIndex;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedIndex = index;
+          _selectedIndex = item.id;
         });
-        widget.homeCubit.changeScreen(AppConstants.screenMap[index]!);
+        if (item.id != 6) {
+          widget.homeCubit.changeScreen(AppConstants.screenMap[item.id]!);
+        } else {
+          item.callback?.call();
+        }
       },
       child: Container(
         width: 100,
@@ -229,13 +251,18 @@ class _HomeAppBarState extends State<HomeAppBar> {
 }
 
 class NavigationItem {
+  final int id;
   final IconData icon;
   final String label;
   final bool isSelected;
+  final bool isActive;
+  final VoidCallback? callback;
 
-  NavigationItem({
-    required this.icon,
-    required this.label,
-    this.isSelected = false,
-  });
+  NavigationItem(
+      {required this.id,
+      required this.icon,
+      required this.label,
+      this.isSelected = false,
+      this.isActive = false,
+      this.callback});
 }

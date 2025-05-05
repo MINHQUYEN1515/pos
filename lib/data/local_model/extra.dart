@@ -12,6 +12,16 @@ class Extra {
   double price;
   @HiveField(3)
   DateTime? createdAt;
+  @HiveField(4, defaultValue: 0)
+  int quantity;
+  @HiveField(5, defaultValue: 0)
+  double? total;
 
-  Extra({this.hiveId, this.name, this.price = 0, this.createdAt});
+  Extra(
+      {this.hiveId,
+      this.name,
+      this.price = 0,
+      this.createdAt,
+      this.quantity = 1,
+      this.total = 0});
 }

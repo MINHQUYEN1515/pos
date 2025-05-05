@@ -218,15 +218,14 @@ class _HomeBodyState extends State<HomeBody> {
                     fontSize: 16,
                   ),
                 ),
-                // Positioned(
-                //     bottom: 0,
-                //     left: 15,
-                //     child: Row(
-                //       children: [],
-                //     ))
               ],
             ),
           ),
+          Positioned(
+              bottom: 3,
+              left: 50,
+              child: "${table.userName}"
+                  .w400(fontSize: 20, color: appColors(context).white))
         ],
       ),
     );

@@ -30,7 +30,7 @@ class SettingCubit extends Cubit<SettingState> {
 
     try {
       await _tableRepo.insertTable(table);
-      emit(state.copyWith(status: LoadStatus.success));
+      loadTable();
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
       logger.e(e);
@@ -112,5 +112,25 @@ class SettingCubit extends Cubit<SettingState> {
   void updateProduct({required Product product}) async {
     await _productRepo.updateProduct(product: product);
     loadProduct();
+  }
+
+  void deleteTable({required String hiveId}) async {
+    await _tableRepo.deleteTable(id: hiveId);
+    loadTable();
+  }
+
+  void updateTable({required TablePos table}) async {
+    await _tableRepo.updateTable(table: table);
+    loadTable();
+  }
+
+  Future createUser({required UserLocal user}) async {
+    await _auth.createUser(user: user);
+    loadUser();
+  }
+
+  Future deleteUser({required String hiveId}) async {
+    await _auth.deleteUser(hiveId: hiveId);
+    loadUser();
   }
 }

@@ -11,7 +11,6 @@ import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/widgets/button/app_drop_button.dart';
 import 'package:pos/ui/widgets/dialog/app_dialog.dart';
 import 'package:pos/ui/widgets/textfield/app_text_field_label.dart';
-import 'package:pos/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../widgets/button/custom_material_button.dart';
@@ -32,7 +31,6 @@ class _ConfigProductState extends State<ConfigProduct> {
   final TextEditingController _codeExtra = TextEditingController();
   final TextEditingController _priceExtra = TextEditingController();
 
-  File? _image;
   String? _value;
   final Map<String, String> valueMap = {
     "Thức ăn": AppConstants.THUC_AN,
@@ -149,6 +147,35 @@ class _ConfigProductState extends State<ConfigProduct> {
                 SizedBox(
                   height: 20,
                 ),
+                Container(
+                  height: 60,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          spacing: 30,
+                          children: [
+                            Expanded(child: "ID".w400(fontSize: 30)),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: "Tên".w600(
+                                  fontSize: 30,
+                                  color: appColors(context).primaryColor),
+                            ),
+                            Expanded(
+                              child: "Thể loại".w400(fontSize: 30),
+                            ),
+                            Expanded(child: "Giá".w400(fontSize: 30)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 150, child: SizedBox())
+                    ],
+                  ),
+                ),
                 BlocBuilder<SettingCubit, SettingState>(
                   buildWhen: (previous, current) =>
                       previous.status != current.status,
@@ -259,17 +286,29 @@ class _ProductWidgetState extends State<ProductWidget> {
                   child: Row(
                     spacing: 30,
                     children: [
-                      widget.data.hiveId!.substring(0, 3).w400(fontSize: 30),
+                      Expanded(
+                          child: widget.data.hiveId!
+                              .substring(0, 3)
+                              .w400(fontSize: 30)),
                       SizedBox(
                         width: 10,
                       ),
-                      widget.data.name!.w600(
-                          fontSize: 30, color: appColors(context).primaryColor),
-                      (widget.data.type == AppConstants.NUOC
-                              ? "Nước"
-                              : "Thức ăn")
-                          .w400(fontSize: 30),
-                      widget.data.price.formatMoney().w400(fontSize: 30)
+                      Expanded(
+                        flex: 3,
+                        child: widget.data.name!.w600(
+                            fontSize: 30,
+                            color: appColors(context).primaryColor),
+                      ),
+                      Expanded(
+                        child: (widget.data.type == AppConstants.NUOC
+                                ? "Nước"
+                                : "Thức ăn")
+                            .w400(fontSize: 30),
+                      ),
+                      Expanded(
+                          child: widget.data.price
+                              .formatMoney()
+                              .w400(fontSize: 30))
                     ],
                   ),
                 )),

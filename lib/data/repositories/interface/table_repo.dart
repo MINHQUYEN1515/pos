@@ -4,4 +4,6 @@ abstract class ITableRepo {
   Future<List<TablePos>> getAll();
   Future<bool> insertTable(TablePos table);
   Future clear();
+  Future<bool> deleteTable({required String id});
+  Future<bool> updateTable({required TablePos table});
 }

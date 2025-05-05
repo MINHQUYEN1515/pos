@@ -31,7 +31,7 @@ class UserLocal {
 
   static UserLocal sample() {
     return UserLocal(
-      hiveId: Uuid().v4(),
+      hiveId: "QUYENADMIN",
       username: 'admin',
       password: '12345678',
       permission: Permission.admin,

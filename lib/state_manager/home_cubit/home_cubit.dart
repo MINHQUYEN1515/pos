@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/local_constants.dart';
 import 'package:pos/data/local_model/local_model.dart';
+import 'package:pos/data/repositories/interface/iauth_repo.dart';
 import 'package:pos/data/repositories/interface/table_repo.dart';
 import 'package:pos/extensions/shared_preference_extension.dart';
 import 'package:pos/state_manager/home_cubit/home_state.dart';
@@ -12,7 +13,8 @@ import '../../core/constants/enum.dart';
 class HomeCubit extends Cubit<HomeState> {
   late SharedPreferences _pref;
   late ITableRepo _tableRepo;
-  HomeCubit(this._pref, this._tableRepo) : super(const HomeState());
+  late IAuthRepo _auth;
+  HomeCubit(this._pref, this._tableRepo, this._auth) : super(const HomeState());
   UserLocal? get user => _pref.users;
   void changeScreen(Screen screen) {
     emit(state.copyWith(screen: screen));
@@ -59,6 +61,10 @@ class HomeCubit extends Cubit<HomeState> {
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
     }
+  }
+
+  Future<bool> logout(context) async {
+    return await _auth.logout();
   }
 
   List<TablePos> get tables => state.tables;

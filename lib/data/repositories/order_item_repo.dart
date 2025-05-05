@@ -25,4 +25,25 @@ class OrderItemRepo extends IOrderItemRepo {
     }
     return null;
   }
+
+  @override
+  Future<OrderItem?> findOrder({required String productId}) async {
+    return await _service.getByProduct(productId: productId);
+  }
+
+  @override
+  Future<OrderItem?> updateOrder({required OrderItem order}) async {
+    await _service.update(order);
+    return null;
+  }
+
+  @override
+  Future<bool> deleteOrder({required OrderItem order}) async {
+    try {
+      await _service.delete(order.hiveId!);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

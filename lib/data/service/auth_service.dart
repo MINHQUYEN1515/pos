@@ -1,3 +1,4 @@
+import 'package:pos/core/constants/shared_preferences_key.dart';
 import 'package:pos/data/local_model/user_local.dart';
 import 'package:pos/data/service/interface/iauth_service.dart';
 import 'package:pos/data/service/interface/user_service.dart';
@@ -52,5 +53,17 @@ class AuthService extends IAuthService {
       logger.e(e);
     }
     return null;
+  }
+
+  @override
+  Future<bool> logout() async {
+    try {
+      _pref.remove(SharedPreferencesKey.user);
+      return true;
+    } catch (e) {
+      logger.e(e);
+
+      return false;
+    }
   }
 }

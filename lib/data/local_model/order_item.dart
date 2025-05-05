@@ -1,5 +1,6 @@
 import 'package:hive_flutter/adapters.dart';
 import 'package:pos/core/constants/local_constants.dart';
+import 'package:pos/data/local_model/extra.dart';
 import 'package:pos/data/local_model/product.dart';
 part 'order_item.g.dart';
 
@@ -27,8 +28,10 @@ class OrderItem {
   String? tableId;
   @HiveField(10, defaultValue: '')
   String? note;
-  @HiveField(11, defaultValue: '')
-  String? extras;
+  @HiveField(11)
+  List<Extra>? extras;
+  @HiveField(12, defaultValue: 0)
+  int? position;
   OrderItem(
       {this.hiveId,
       this.code,
@@ -41,21 +44,22 @@ class OrderItem {
       this.totalAmount,
       this.tableId,
       this.note,
-      this.extras});
-  OrderItem copyWith({
-    String? hiveId,
-    String? code,
-    String? username,
-    double? amount,
-    Product? product,
-    int? quantity,
-    String? craetedAt,
-    String? updatedAt,
-    double? totalAmount,
-    String? tableId,
-    String? note,
-    String? extras,
-  }) {
+      this.extras,
+      this.position});
+  OrderItem copyWith(
+      {String? hiveId,
+      String? code,
+      String? username,
+      double? amount,
+      Product? product,
+      int? quantity,
+      String? craetedAt,
+      String? updatedAt,
+      double? totalAmount,
+      String? tableId,
+      String? note,
+      List<Extra>? extras,
+      int? position}) {
     return OrderItem()
       ..hiveId = hiveId ?? this.hiveId
       ..code = code ?? this.code
@@ -68,6 +72,7 @@ class OrderItem {
       ..totalAmount = totalAmount ?? this.totalAmount
       ..tableId = tableId ?? this.tableId
       ..note = note ?? this.note
-      ..extras = extras ?? this.extras;
+      ..extras = extras ?? this.extras
+      ..position = position ?? this.position;
   }
 }

@@ -3,6 +3,7 @@ import 'package:pos/data/repositories/interface/iauth_repo.dart';
 import 'package:pos/data/service/interface/iauth_service.dart';
 import 'package:pos/data/service/interface/user_service.dart';
 import 'package:pos/extensions/shared_preference_extension.dart';
+import 'package:pos/utils/logger.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,5 +31,26 @@ class AuthRepo extends IAuthRepo {
   @override
   Future<List<UserLocal>> getAll() async {
     return await _userService.getAll();
+  }
+
+  @override
+  Future<bool> createUser({required UserLocal user}) async {
+    try {
+      await _userService.insert(user);
+      return true;
+    } catch (e) {
+      logger.e(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> deleteUser({required String hiveId}) async {
+    return await _userService.delete(hiveId);
+  }
+
+  @override
+  Future<bool> logout() async {
+    return await _iAuthService.logout();
   }
 }

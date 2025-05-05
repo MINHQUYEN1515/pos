@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pos/data/local_model/order_item.dart';
 import 'package:pos/data/service/interface/iorder_item_service.dart';
+import 'package:pos/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
 class OrderItemService extends IOrderItemService {
@@ -64,6 +65,20 @@ class OrderItemService extends IOrderItemService {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  @override
+  Future<OrderItem?> getByProduct({required String productId}) async {
+    try {
+      var data = await getAll();
+      var order = data.where((e) => e.product?.code == productId).toList();
+      if (order.length != 0) {
+        return order.first;
+      }
+    } catch (e) {
+      logger.e(e);
+      return null;
     }
   }
 }

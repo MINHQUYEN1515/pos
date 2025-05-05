@@ -28,8 +28,9 @@ class LocalConstants {
 class AppConstants {
   static const String KEY = "ASDFGHJKLASDFGHJ";
   static const Map<int, Screen> screenMap = {
-    0: Screen.setting,
-    1: Screen.restaurent,
+    1: Screen.setting,
+    2: Screen.restaurent,
+    3: Screen.restaurent
   };
   static const String TABLE_USING = "using";
   static const String TABLE_EMPTY = 'empty';

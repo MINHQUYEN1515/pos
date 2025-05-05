@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
 import 'package:pos/core/constants/local_constants.dart';
+import 'package:pos/core/routes/app_route.dart';
 import 'package:pos/data/local_model/local_model.dart';
 import 'package:pos/extensions/number_extension.dart';
+import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/state_manager.dart';
 import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
 import 'package:pos/utils/order_item_utils.dart';
-
-import 'dialog_quantity.dart';
 
 class TableDetail extends StatelessWidget {
   final TableDetailCubit tableCubit;
@@ -40,13 +40,28 @@ class _POSScreenState extends State<POSScreen>
   double _total = 30.00;
   double _discount = 4.00;
   int _selectedTable = 5;
-  String _currentInput = '';
+  TextEditingController _currentInput = TextEditingController();
   TablePos? _table;
   int _chooseCategory = 0;
+  int _position = 0;
 
   @override
   void initState() {
-    widget.tableCubit.loadData();
+    // Trì hoãn đến khi context sẵn sàng
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is TablePos) {
+        setState(() {
+          _table = args;
+        });
+
+        // Load dữ liệu ngay khi nhận table
+        widget.tableCubit.loadData(
+            table: _table!,
+            fillter: widget.tableCubit.state.fillter,
+            position: _position);
+      }
+    });
     super.initState();
     _tabController = TabController(length: 8, vsync: this);
   }
@@ -60,13 +75,7 @@ class _POSScreenState extends State<POSScreen>
 
   void _addNumberToInput(String number) {
     setState(() {
-      _currentInput += number;
-    });
-  }
-
-  void _clearInput() {
-    setState(() {
-      _currentInput = '';
+      _currentInput.text += number;
     });
   }
 
@@ -84,21 +93,135 @@ class _POSScreenState extends State<POSScreen>
               crossAxisCount: 3, mainAxisSpacing: 3, crossAxisSpacing: 3),
           itemBuilder: (context, index) {
             final data = state.product[index];
-            return _buildMenuItem(data.hiveId!.substring(0, 3), data.name!,
-                data.price!, appColors(context).white, () {
-              int quantity = 1;
-              showDialog(
+
+            return _buildMenuItem(
+                data.code!, data.name!, data.price!, appColors(context).white,
+                () {
+              if (data.extras?.length != 0) {
+                showDialog(
+                  useRootNavigator: false,
+                  barrierDismissible: false,
                   context: context,
-                  builder: (_) {
-                    return QuantityPopup(
-                      onEmitQuantity: (value) {
-                        quantity = value;
-                      },
-                    );
-                  });
-              OrderItem order = OrderItemUtils.createOrderTemp(
-                  product: data, tableId: _table!.tableId!, quantity: quantity);
-              widget.tableCubit.addOrderTemp(order: order);
+                  builder: (context) {
+                    List<Extra> _extra = [];
+                    return StatefulBuilder(builder: (context, statefulBuilder) {
+                      return Dialog(
+                        shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(0)),
+                        child: Container(
+                          width: 300,
+                          height: 300,
+                          padding: EdgeInsets.all(10),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: data.extras?.length,
+                                        itemBuilder: (context, index) {
+                                          var extra = data.extras![index];
+                                          extra.quantity = 1;
+                                          extra.total = extra.price;
+
+                                          return CustomMaterialButton(
+                                              onTap: () {
+                                                statefulBuilder(() {
+                                                  _extra.add(extra);
+                                                });
+                                              },
+                                              alignment: Alignment.center,
+                                              height: 60,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: _extra.contains(extra)
+                                                      ? appColors(context)
+                                                          .primaryColor
+                                                      : appColors(context)
+                                                          .white,
+                                                ),
+                                                color: _extra.contains(extra)
+                                                    ? appColors(context)
+                                                        .primaryColor
+                                                    : appColors(context).white,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  extra.name!.w400(
+                                                      fontSize: 20,
+                                                      color: _extra
+                                                              .contains(extra)
+                                                          ? appColors(context)
+                                                              .white
+                                                          : appColors(context)
+                                                              .primaryColor),
+                                                  extra.price
+                                                      .formatMoney()
+                                                      .w400(
+                                                          fontSize: 20,
+                                                          color: _extra
+                                                                  .contains(
+                                                                      extra)
+                                                              ? appColors(
+                                                                      context)
+                                                                  .white
+                                                              : appColors(
+                                                                      context)
+                                                                  .primaryColor)
+                                                ],
+                                              ));
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              CustomMaterialButton(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    OrderItem order =
+                                        OrderItemUtils.createOrderTemp(
+                                            product: data,
+                                            tableId: _table!.tableId!,
+                                            quantity: 1,
+                                            extras: _extra,
+                                            username: widget
+                                                .tableCubit.user?.username,
+                                            position: _position);
+                                    widget.tableCubit.addOrderTemp(
+                                        order: order, position: _position);
+                                  },
+                                  height: 70,
+                                  width: 120,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: appColors(context).primaryColor),
+                                  child: "Order".w400(
+                                      fontSize: 20,
+                                      color: appColors(context).white))
+                            ],
+                          ),
+                        ),
+                      );
+                    });
+                  },
+                );
+              } else {
+                OrderItem order = OrderItemUtils.createOrderTemp(
+                    product: data,
+                    tableId: _table!.tableId!,
+                    quantity: 1,
+                    username: widget.tableCubit.user?.username,
+                    position: _position);
+                widget.tableCubit
+                    .addOrderTemp(order: order, position: _position);
+              }
             }, "gg");
           },
           itemCount: state.product.length,
@@ -160,7 +283,7 @@ class _POSScreenState extends State<POSScreen>
             padding: const EdgeInsets.all(4),
             color: Colors.white.withOpacity(0.7),
             child: Text(
-              "${price.formatMoney()}",
+              price.formatMoney(),
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -179,7 +302,18 @@ class _POSScreenState extends State<POSScreen>
               _buildNumpadButton("1"),
               _buildNumpadButton("2"),
               _buildNumpadButton("3"),
-              _buildFunctionButton(Icons.add, Colors.teal[600]!),
+              _buildFunctionButton(Icons.add, Colors.teal[600]!, onTap: () {
+                if (widget.tableCubit.selectOrder != null) {
+                  widget.tableCubit.selectOrder?.quantity =
+                      widget.tableCubit.selectOrder!.quantity! + 1;
+                  widget.tableCubit.selectOrder?.totalAmount =
+                      widget.tableCubit.selectOrder!.quantity! *
+                          widget.tableCubit.selectOrder!.product!.price!;
+                  widget.tableCubit.updateOrder(
+                      order: widget.tableCubit.selectOrder!,
+                      position: _position);
+                }
+              }),
             ],
           ),
         ),
@@ -189,7 +323,18 @@ class _POSScreenState extends State<POSScreen>
               _buildNumpadButton("4"),
               _buildNumpadButton("5"),
               _buildNumpadButton("6"),
-              _buildFunctionButton(Icons.remove, Colors.teal[600]!),
+              _buildFunctionButton(Icons.remove, Colors.teal[600]!, onTap: () {
+                if (widget.tableCubit.selectOrder != null) {
+                  widget.tableCubit.selectOrder?.quantity =
+                      widget.tableCubit.selectOrder!.quantity! - 1;
+                  widget.tableCubit.selectOrder?.totalAmount =
+                      widget.tableCubit.selectOrder!.quantity! *
+                          widget.tableCubit.selectOrder!.product!.price!;
+                  widget.tableCubit.updateOrder(
+                      order: widget.tableCubit.selectOrder!,
+                      position: _position);
+                }
+              }),
             ],
           ),
         ),
@@ -199,17 +344,29 @@ class _POSScreenState extends State<POSScreen>
               _buildNumpadButton("7"),
               _buildNumpadButton("8"),
               _buildNumpadButton("9"),
-              _buildFunctionButton(Icons.close, Colors.teal[600]!),
+              _buildFunctionButton(Icons.close, Colors.teal[600]!, onTap: () {
+                if (widget.tableCubit.selectOrder != null) {
+                  widget.tableCubit.deleteOrder(
+                      order: widget.tableCubit.selectOrder!,
+                      position: _position);
+                }
+              }),
             ],
           ),
         ),
         Expanded(
           child: Row(
             children: [
-              _buildNumpadButton("X"),
+              _buildNumpadButton("X", onTap: () {
+                setState(() {
+                  _currentInput.text = '';
+                });
+              }),
               _buildNumpadButton("0"),
               _buildNumpadButton("00"),
-              _buildFunctionButton(Icons.search, Colors.teal[600]!),
+              _buildFunctionButton(Icons.search, Colors.teal[600]!, onTap: () {
+                widget.tableCubit.findProduct(search: _currentInput.text);
+              }),
             ],
           ),
         ),
@@ -230,7 +387,13 @@ class _POSScreenState extends State<POSScreen>
               const VerticalDivider(color: Colors.white, width: 1),
               Expanded(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.tableCubit.order().then((value) {
+                      if (value) {
+                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      }
+                    });
+                  },
                   child: const Text(
                     "Đặt món",
                     style: TextStyle(color: Colors.white),
@@ -254,7 +417,7 @@ class _POSScreenState extends State<POSScreen>
     );
   }
 
-  Widget _buildNumpadButton(String text) {
+  Widget _buildNumpadButton(String text, {VoidCallback? onTap}) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(1),
@@ -267,7 +430,10 @@ class _POSScreenState extends State<POSScreen>
               borderRadius: BorderRadius.circular(0),
             ),
           ),
-          onPressed: () => _addNumberToInput(text),
+          onPressed: () {
+            _addNumberToInput(text);
+            onTap?.call();
+          },
           child: Text(
             text,
             style: const TextStyle(fontSize: 24),
@@ -277,7 +443,8 @@ class _POSScreenState extends State<POSScreen>
     );
   }
 
-  Widget _buildFunctionButton(IconData icon, Color color) {
+  Widget _buildFunctionButton(IconData icon, Color color,
+      {VoidCallback? onTap}) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(1),
@@ -290,7 +457,9 @@ class _POSScreenState extends State<POSScreen>
               borderRadius: BorderRadius.circular(0),
             ),
           ),
-          onPressed: () {},
+          onPressed: () {
+            onTap?.call();
+          },
           child: Icon(icon, size: 28),
         ),
       ),
@@ -300,6 +469,8 @@ class _POSScreenState extends State<POSScreen>
   @override
   Widget build(BuildContext context) {
     _table = ModalRoute.of(context)!.settings.arguments as TablePos;
+    // widget.tableCubit.loadData(table: _table!);
+
     return Scaffold(
       body: Column(
         children: [
@@ -327,29 +498,22 @@ class _POSScreenState extends State<POSScreen>
                   ),
                   const Spacer(),
                   const Text(
-                    "Giảm % | C",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "4,00",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  const Text(
                     "Tổng",
                     style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    _total.toStringAsFixed(2),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  BlocBuilder<TableDetailCubit, TableDetailState>(
+                    buildWhen: (previous, current) =>
+                        previous.status != current.status,
+                    builder: (context, state) {
+                      return Text(
+                        _getTotal().formatMoney(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -374,44 +538,139 @@ class _POSScreenState extends State<POSScreen>
                             return ListView.builder(
                               itemCount: state.orderTemp.length,
                               itemBuilder: (context, index) {
-                                final item = state.orderTemp[index];
-                                final bool isEven = index % 2 == 0;
-                                return Container(
-                                  color:
-                                      isEven ? Colors.white : Colors.grey[200],
-                                  height: 50,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
-                                    child: Row(
+                                var item = state.orderTemp[index];
+                                Color _color =
+                                    widget.tableCubit.selectOrder?.hiveId ==
+                                            item.hiveId
+                                        ? appColors(context).primaryColor
+                                        : appColors(context).white;
+                                Color _colorText =
+                                    widget.tableCubit.selectOrder?.hiveId ==
+                                            item.hiveId
+                                        ? appColors(context).white
+                                        : appColors(context).primaryColor;
+                                return ConstrainedBox(
+                                  constraints: BoxConstraints(minHeight: 50),
+                                  child: CustomMaterialButton(
+                                    onTap: () {
+                                      widget.tableCubit
+                                          .selectOrders(order: item);
+                                      setState(() {});
+                                    },
+                                    decoration: BoxDecoration(
+                                      color: _color,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Column(
                                       children: [
-                                        Text(item.hiveId!.substring(0, 3)),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Text(item.product!.name!),
-                                        ),
-                                        SizedBox(
-                                          width: 30,
-                                          child: Text(
-                                            "${item.quantity}",
-                                            textAlign: TextAlign.center,
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                item.hiveId!.substring(0, 3),
+                                                style: TextStyle(
+                                                    color: _colorText),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  item.product!.name!,
+                                                  style: TextStyle(
+                                                      color: _colorText),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 30,
+                                                child: Text(
+                                                  "${item.quantity}",
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color: _colorText),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 60,
+                                                child: Text(
+                                                  item.product!.price
+                                                      .formatMoney(),
+                                                  textAlign: TextAlign.right,
+                                                  style: TextStyle(
+                                                      color: _colorText),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 60,
+                                                child: Text(
+                                                  (item.totalAmount)
+                                                      .formatMoney(),
+                                                  textAlign: TextAlign.right,
+                                                  style: TextStyle(
+                                                      color: _colorText),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: 60,
-                                          child: Text(
-                                            item.product!.price.formatMoney(),
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 60,
-                                          child: Text(
-                                            (item.totalAmount).formatMoney(),
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ),
+                                        ListView.separated(
+                                            shrinkWrap: true,
+                                            itemBuilder: (context, index) {
+                                              final extra = item.extras?[index];
+                                              return Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  spacing: 10,
+                                                  children: [
+                                                    "+".w400(
+                                                        fontSize: 15,
+                                                        color: _colorText),
+                                                    Expanded(
+                                                      child: extra!.name!.w400(
+                                                          fontSize: 10,
+                                                          color: _colorText),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: extra.quantity
+                                                          .toString()
+                                                          .w400(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  _colorText),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: extra.price
+                                                          .formatMoney()
+                                                          .w400(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  _colorText),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: extra.total
+                                                          .formatMoney()
+                                                          .w400(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  _colorText),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            separatorBuilder:
+                                                (context, index) => SizedBox(),
+                                            itemCount: item.extras?.length ?? 0)
                                       ],
                                     ),
                                   ),
@@ -433,14 +692,23 @@ class _POSScreenState extends State<POSScreen>
                           children: [
                             Expanded(
                               child: TextField(
-                                controller: _searchController,
+                                controller: _currentInput,
                                 decoration: const InputDecoration(
                                   hintText: "Nhập mã món ăn",
                                   border: InputBorder.none,
                                 ),
                               ),
                             ),
-                            Container(
+                            CustomMaterialButton(
+                              onTap: () {
+                                if (_currentInput.text.isNotEmpty) {
+                                  setState(() {
+                                    _currentInput.text = _currentInput.text
+                                        .substring(
+                                            0, _currentInput.text.length - 1);
+                                  });
+                                }
+                              },
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
@@ -477,14 +745,23 @@ class _POSScreenState extends State<POSScreen>
                           children: [
                             for (int i = 1; i <= _table!.seats!; i++)
                               Expanded(
-                                child: Container(
+                                child: CustomMaterialButton(
+                                  onTap: () {
+                                    setState(() {
+                                      _position = i;
+                                    });
+                                    widget.tableCubit
+                                        .loadPosition(position: _position);
+                                  },
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 0.5,
-                                    ),
-                                  ),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 0.5,
+                                      ),
+                                      color: _position == i
+                                          ? appColors(context).primaryColor
+                                          : appColors(context).primaryColor75),
                                   child: Center(
                                     child: Text(
                                       "$i",
@@ -497,14 +774,23 @@ class _POSScreenState extends State<POSScreen>
                                 ),
                               ),
                             Expanded(
-                              child: Container(
+                              child: CustomMaterialButton(
+                                onTap: () {
+                                  setState(() {
+                                    _position = 0;
+                                  });
+                                  widget.tableCubit
+                                      .loadPosition(position: _position);
+                                },
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 0.5,
-                                  ),
-                                ),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 0.5,
+                                    ),
+                                    color: _position == 0
+                                        ? appColors(context).primaryColor
+                                        : appColors(context).primaryColor75),
                                 child: Center(
                                   child: Text(
                                     "Tất cả",
@@ -532,7 +818,8 @@ class _POSScreenState extends State<POSScreen>
                               child: CustomMaterialButton(
                                 onTap: () {
                                   widget.tableCubit.fillterData(
-                                      fillter: AppConstants.THUC_AN);
+                                      fillter: AppConstants.THUC_AN,
+                                      position: _position);
                                   setState(() {
                                     _chooseCategory = 0;
                                   });
@@ -561,8 +848,9 @@ class _POSScreenState extends State<POSScreen>
                             Expanded(
                               child: CustomMaterialButton(
                                 onTap: () {
-                                  widget.tableCubit
-                                      .fillterData(fillter: AppConstants.NUOC);
+                                  widget.tableCubit.fillterData(
+                                      fillter: AppConstants.NUOC,
+                                      position: _position);
                                   setState(() {
                                     _chooseCategory = 1;
                                   });
@@ -611,5 +899,16 @@ class _POSScreenState extends State<POSScreen>
         ],
       ),
     );
+  }
+
+  double _getTotal() {
+    double _price = 0;
+    widget.tableCubit.items.forEach((e) {
+      _price += e.totalAmount!;
+      e.extras?.forEach((ele) {
+        _price += ele.total!;
+      });
+    });
+    return _price;
   }
 }
