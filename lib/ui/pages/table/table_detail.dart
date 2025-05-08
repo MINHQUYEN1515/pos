@@ -11,22 +11,27 @@ import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
 import 'package:pos/utils/order_item_utils.dart';
 
+import 'payment.dart';
+
 class TableDetail extends StatelessWidget {
   final TableDetailCubit tableCubit;
-  const TableDetail(this.tableCubit, {super.key});
+  final TablePos table;
+  const TableDetail(this.tableCubit, this.table, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: tableCubit,
-      child: POSScreen(tableCubit),
+      child: POSScreen(tableCubit, table),
     );
   }
 }
 
 class POSScreen extends StatefulWidget {
   final TableDetailCubit tableCubit;
-  const POSScreen(this.tableCubit, {Key? key}) : super(key: key);
+  final TablePos table;
+
+  const POSScreen(this.tableCubit, this.table, {Key? key}) : super(key: key);
 
   @override
   _POSScreenState createState() => _POSScreenState();
@@ -37,33 +42,22 @@ class _POSScreenState extends State<POSScreen>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
-  double _total = 30.00;
-  double _discount = 4.00;
-  int _selectedTable = 5;
   TextEditingController _currentInput = TextEditingController();
   TablePos? _table;
+  bool ispay = false;
   int _chooseCategory = 0;
   int _position = 0;
-
+  double _price = 0;
   @override
   void initState() {
-    // Trì hoãn đến khi context sẵn sàng
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is TablePos) {
-        setState(() {
-          _table = args;
-        });
-
-        // Load dữ liệu ngay khi nhận table
-        widget.tableCubit.loadData(
-            table: _table!,
-            fillter: widget.tableCubit.state.fillter,
-            position: _position);
-      }
-    });
     super.initState();
     _tabController = TabController(length: 8, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _handleRouteArguments();
   }
 
   @override
@@ -76,6 +70,24 @@ class _POSScreenState extends State<POSScreen>
   void _addNumberToInput(String number) {
     setState(() {
       _currentInput.text += number;
+    });
+  }
+
+  void _handleRouteArguments() async {
+    setState(() {
+      _table = widget.table;
+    });
+
+    await widget.tableCubit
+        .loadData(
+      table: _table!,
+      fillter: widget.tableCubit.state.fillter,
+      position: _position,
+    )
+        .then((value) {
+      setState(() {
+        _price = value;
+      });
     });
   }
 
@@ -195,7 +207,9 @@ class _POSScreenState extends State<POSScreen>
                                                 .tableCubit.user?.username,
                                             position: _position);
                                     widget.tableCubit.addOrderTemp(
-                                        order: order, position: _position);
+                                        order: order,
+                                        position: _position,
+                                        tableId: _table!.tableId!);
                                   },
                                   height: 70,
                                   width: 120,
@@ -219,8 +233,10 @@ class _POSScreenState extends State<POSScreen>
                     quantity: 1,
                     username: widget.tableCubit.user?.username,
                     position: _position);
-                widget.tableCubit
-                    .addOrderTemp(order: order, position: _position);
+                widget.tableCubit.addOrderTemp(
+                    order: order,
+                    position: _position,
+                    tableId: _table!.tableId!);
               }
             }, "gg");
           },
@@ -403,7 +419,11 @@ class _POSScreenState extends State<POSScreen>
               const VerticalDivider(color: Colors.white, width: 1),
               Expanded(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      ispay = !ispay;
+                    });
+                  },
                   child: const Text(
                     "Thanh toán",
                     style: TextStyle(color: Colors.white),
@@ -468,7 +488,8 @@ class _POSScreenState extends State<POSScreen>
 
   @override
   Widget build(BuildContext context) {
-    _table = ModalRoute.of(context)!.settings.arguments as TablePos;
+    _getTotal();
+
     // widget.tableCubit.loadData(table: _table!);
 
     return Scaffold(
@@ -507,7 +528,7 @@ class _POSScreenState extends State<POSScreen>
                         previous.status != current.status,
                     builder: (context, state) {
                       return Text(
-                        _getTotal().formatMoney(),
+                        _price.formatMoney(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -734,165 +755,188 @@ class _POSScreenState extends State<POSScreen>
                 ),
 
                 // Right side - Menu items
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      // Tab Buttons
-                      Container(
-                        color: const Color(0xFF2D545E),
-                        child: Row(
+                ispay
+                    ? Expanded(
+                        flex: 7,
+                        child: BlocBuilder<TableDetailCubit, TableDetailState>(
+                          buildWhen: (previous, current) =>
+                              previous.status != current.status,
+                          builder: (context, state) {
+                            return PaymentScreen(
+                              total: _price,
+                              widget.tableCubit,
+                              _table!,
+                              position: _position,
+                            );
+                          },
+                        ))
+                    : Expanded(
+                        flex: 7,
+                        child: Column(
                           children: [
-                            for (int i = 1; i <= _table!.seats!; i++)
-                              Expanded(
-                                child: CustomMaterialButton(
-                                  onTap: () {
-                                    setState(() {
-                                      _position = i;
-                                    });
-                                    widget.tableCubit
-                                        .loadPosition(position: _position);
-                                  },
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 0.5,
+                            // Tab Buttons
+                            Container(
+                              color: const Color(0xFF2D545E),
+                              child: Row(
+                                children: [
+                                  for (int i = 1; i <= _table!.seats!; i++)
+                                    Expanded(
+                                      child: CustomMaterialButton(
+                                        onTap: () {
+                                          setState(() {
+                                            _position = i;
+                                          });
+                                          widget.tableCubit.loadPosition(
+                                              position: _position);
+                                        },
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 0.5,
+                                            ),
+                                            color: _position == i
+                                                ? appColors(context)
+                                                    .primaryColor
+                                                : appColors(context)
+                                                    .primaryColor75),
+                                        child: Center(
+                                          child: Text(
+                                            "$i",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      color: _position == i
-                                          ? appColors(context).primaryColor
-                                          : appColors(context).primaryColor75),
-                                  child: Center(
-                                    child: Text(
-                                      "$i",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                    ),
+                                  Expanded(
+                                    child: CustomMaterialButton(
+                                      onTap: () {
+                                        setState(() {
+                                          _position = 0;
+                                        });
+                                        widget.tableCubit
+                                            .loadPosition(position: _position);
+                                      },
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 0.5,
+                                          ),
+                                          color: _position == 0
+                                              ? appColors(context).primaryColor
+                                              : appColors(context)
+                                                  .primaryColor75),
+                                      child: Center(
+                                        child: Text(
+                                          "Tất cả",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            Expanded(
-                              child: CustomMaterialButton(
-                                onTap: () {
-                                  setState(() {
-                                    _position = 0;
-                                  });
-                                  widget.tableCubit
-                                      .loadPosition(position: _position);
-                                },
-                                height: 40,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 0.5,
-                                    ),
-                                    color: _position == 0
-                                        ? appColors(context).primaryColor
-                                        : appColors(context).primaryColor75),
-                                child: Center(
-                                  child: Text(
-                                    "Tất cả",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                            ),
+
+                            // Category Tabs
+                            Container(
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomMaterialButton(
+                                      onTap: () {
+                                        widget.tableCubit.fillterData(
+                                            fillter: AppConstants.THUC_AN,
+                                            position: _position);
+                                        setState(() {
+                                          _chooseCategory = 0;
+                                        });
+                                      },
+                                      decoration: BoxDecoration(
+                                          color: _chooseCategory == 0
+                                              ? appColors(context).primaryColor
+                                              : appColors(context)
+                                                  .primaryColor75),
+                                      padding: const EdgeInsets.all(8),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(Icons.dining,
+                                              color: Colors.white),
+                                          Text(
+                                            "Thức ăn",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Category Tabs
-                      Container(
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: CustomMaterialButton(
-                                onTap: () {
-                                  widget.tableCubit.fillterData(
-                                      fillter: AppConstants.THUC_AN,
-                                      position: _position);
-                                  setState(() {
-                                    _chooseCategory = 0;
-                                  });
-                                },
-                                decoration: BoxDecoration(
-                                    color: _chooseCategory == 0
-                                        ? appColors(context).primaryColor
-                                        : appColors(context).primaryColor75),
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.dining, color: Colors.white),
-                                    Text(
-                                      "Thức ăn",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
+                                  Expanded(
+                                    child: CustomMaterialButton(
+                                      onTap: () {
+                                        widget.tableCubit.fillterData(
+                                            fillter: AppConstants.NUOC,
+                                            position: _position);
+                                        setState(() {
+                                          _chooseCategory = 1;
+                                        });
+                                      },
+                                      decoration: BoxDecoration(
+                                          color: _chooseCategory == 1
+                                              ? appColors(context).primaryColor
+                                              : appColors(context)
+                                                  .primaryColor75),
+                                      padding: const EdgeInsets.all(8),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(Icons.local_drink,
+                                              color: Colors.white),
+                                          Text(
+                                            "Nước",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Expanded(
-                              child: CustomMaterialButton(
-                                onTap: () {
-                                  widget.tableCubit.fillterData(
-                                      fillter: AppConstants.NUOC,
-                                      position: _position);
-                                  setState(() {
-                                    _chooseCategory = 1;
-                                  });
-                                },
-                                decoration: BoxDecoration(
-                                    color: _chooseCategory == 1
-                                        ? appColors(context).primaryColor
-                                        : appColors(context).primaryColor75),
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.local_drink,
-                                        color: Colors.white),
-                                    Text(
-                                      "Nước",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
-                      // Menu Grid
-                      Expanded(
-                        child: Row(
-                          children: [
-                            // Menu Items Grid
-                            Expanded(flex: 4, child: _buildMenuGrid()),
+                            // Menu Grid
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  // Menu Items Grid
+                                  Expanded(flex: 4, child: _buildMenuGrid()),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

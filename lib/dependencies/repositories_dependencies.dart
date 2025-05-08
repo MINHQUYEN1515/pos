@@ -11,5 +11,6 @@ class RepositoriesDependencies {
     injector.registerFactory<ITableRepo>(() => TableRepo(injector()));
     injector.registerFactory<IProductRepo>(() => ProductRepo(injector()));
     injector.registerFactory<IOrderItemRepo>(() => OrderItemRepo(injector()));
+    injector.registerFactory<IOrderRepo>(() => OrderRepo(injector()));
   }
 }

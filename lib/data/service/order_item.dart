@@ -69,10 +69,13 @@ class OrderItemService extends IOrderItemService {
   }
 
   @override
-  Future<OrderItem?> getByProduct({required String productId}) async {
+  Future<OrderItem?> getByProduct(
+      {required String productId, required String tableId}) async {
     try {
       var data = await getAll();
-      var order = data.where((e) => e.product?.code == productId).toList();
+      var order = data
+          .where((e) => e.product?.code == productId && e.tableId == tableId)
+          .toList();
       if (order.length != 0) {
         return order.first;
       }
@@ -80,5 +83,6 @@ class OrderItemService extends IOrderItemService {
       logger.e(e);
       return null;
     }
+    return null;
   }
 }

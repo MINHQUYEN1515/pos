@@ -12,7 +12,7 @@ class BlocDependencies {
     injector.registerFactory<LoginCubit>(() => LoginCubit(injector()));
     injector.registerFactory<SettingCubit>(
         () => SettingCubit(injector(), injector(), injector()));
-    injector.registerFactory<TableDetailCubit>(
-        () => TableDetailCubit(injector(), injector(), injector(), injector()));
+    injector.registerFactory<TableDetailCubit>(() => TableDetailCubit(
+        injector(), injector(), injector(), injector(), injector()));
   }
 }

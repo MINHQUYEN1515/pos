@@ -15,5 +15,19 @@ class Order {
   String? createdAt;
   @HiveField(4, defaultValue: '')
   String? updatedAt;
-  Order({this.hiveId, this.amount, this.items, this.createdAt, this.updatedAt});
+  @HiveField(5, defaultValue: 0)
+  double? total;
+  @HiveField(6, defaultValue: '')
+  String? username;
+  @HiveField(7, defaultValue: '')
+  String? payment;
+  Order(
+      {this.hiveId,
+      this.amount,
+      this.items,
+      this.createdAt,
+      this.updatedAt,
+      this.payment,
+      this.total,
+      this.username});
 }

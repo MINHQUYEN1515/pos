@@ -39,6 +39,8 @@ class AppConstants {
   static const String NGOAI_NHA = 'ngoainha';
   static const String THUC_AN = 'thucan';
   static const String NUOC = 'nuoc';
+  static const String TIEN_MAT = 'tienmat';
+  static const String TRATHE = 'trathe';
 }
 
 class Constants {

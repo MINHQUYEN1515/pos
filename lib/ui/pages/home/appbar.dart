@@ -6,15 +6,22 @@ import 'package:pos/state_manager/state_manager.dart';
 
 class HomeAppBar extends StatefulWidget {
   final HomeCubit homeCubit;
-  const HomeAppBar(this.homeCubit, {super.key});
+  final VoidCallback? onChangeTable;
+  final int? select;
+  final Function(int value)? onEmitIndex;
+  final VoidCallback? onMergeTable;
+  const HomeAppBar(this.homeCubit,
+      {super.key,
+      this.onChangeTable,
+      this.select,
+      this.onEmitIndex,
+      this.onMergeTable});
 
   @override
   State<HomeAppBar> createState() => _HomeAppBarState();
 }
 
 class _HomeAppBarState extends State<HomeAppBar> {
-  int _selectedIndex = 1;
-
   List<NavigationItem> _navigationItems = [];
   @override
   void initState() {
@@ -58,8 +65,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
         },
       ),
     ]);
-    _selectedIndex =
-        widget.homeCubit.user?.permission == Permission.admin ? 5 : 2;
+
     _navigationItems = _navigationItems.where((e) => e.isActive).toList();
   }
 
@@ -202,17 +208,21 @@ class _HomeAppBarState extends State<HomeAppBar> {
   }
 
   Widget _buildNavigationItem(NavigationItem item, int index) {
-    bool isSelected = item.id == _selectedIndex;
+    bool isSelected = item.id == widget.select;
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = item.id;
-        });
-        if (item.id != 6) {
+        widget.onEmitIndex?.call(item.id);
+        if (item.id != 6 && item.id != 4 && item.id != 3) {
           widget.homeCubit.changeScreen(AppConstants.screenMap[item.id]!);
         } else {
           item.callback?.call();
+        }
+        if (item.id == 3) {
+          widget.onChangeTable?.call();
+        }
+        if (item.id == 4) {
+          widget.onMergeTable?.call();
         }
       },
       child: Container(

@@ -10,5 +10,6 @@ class ServiceDependencies {
     injector.registerFactory<IproductService>(() => ProductService());
     injector.registerFactory<IOrderItemService>(() => OrderItemService());
     injector.registerFactory<IUserService>(() => UserService());
+    injector.registerFactory<IOrderService>(() => OrderService());
   }
 }

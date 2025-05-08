@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/constants/enum.dart';
 import 'package:pos/core/constants/local_constants.dart';
-import 'package:pos/core/routes/app_route.dart';
 import 'package:pos/data/local_model/table.dart';
 import 'package:pos/extensions/number_extension.dart';
 import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/home_cubit/home.dart';
+import 'package:pos/state_manager/table_detail/table_detail_cubit.dart';
 import 'package:pos/theme/colors.dart';
+import 'package:pos/ui/pages/page.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
 
 class HomeBody extends StatefulWidget {
   final HomeCubit homeCubit;
-  const HomeBody(this.homeCubit, {super.key});
+  final TableDetailCubit tableCubit;
+  const HomeBody(this.homeCubit, this.tableCubit, {super.key});
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
@@ -137,8 +139,11 @@ class _HomeBodyState extends State<HomeBody> {
                   itemBuilder: (context, index) {
                     final data = widget.homeCubit.tables[index];
                     return buildTable(data, () {
-                      Navigator.pushNamed(context, AppRoutes.tableDetai,
-                          arguments: data);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  TableDetail(widget.tableCubit, data)));
                     });
                   },
                 );

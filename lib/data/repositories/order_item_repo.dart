@@ -27,8 +27,9 @@ class OrderItemRepo extends IOrderItemRepo {
   }
 
   @override
-  Future<OrderItem?> findOrder({required String productId}) async {
-    return await _service.getByProduct(productId: productId);
+  Future<OrderItem?> findOrder(
+      {required String productId, required String tableId}) async {
+    return await _service.getByProduct(productId: productId, tableId: tableId);
   }
 
   @override
@@ -41,6 +42,19 @@ class OrderItemRepo extends IOrderItemRepo {
   Future<bool> deleteOrder({required OrderItem order}) async {
     try {
       await _service.delete(order.hiveId!);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> deleteOrderWhenPay({required String tableId}) async {
+    try {
+      var data = await _service.getAll();
+      await _service.clear();
+      data = data.where((e) => e.tableId != tableId).toList();
+      await _service.insertAll(data);
       return true;
     } catch (e) {
       return false;
