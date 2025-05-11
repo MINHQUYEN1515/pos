@@ -4,8 +4,10 @@ import 'package:pos/core/constants/enum.dart';
 import 'package:pos/core/constants/local_constants.dart';
 import 'package:pos/data/local_model/permission.dart';
 import 'package:pos/state_manager/home_cubit/home.dart';
+import 'package:pos/state_manager/invoice_cubit/invoice_cubit.dart';
 import 'package:pos/state_manager/setting_cubit/setting_cubit.dart';
 import 'package:pos/state_manager/table_detail/table_detail_cubit.dart';
+import 'package:pos/ui/pages/invoice/invoice.dart';
 import 'package:pos/ui/pages/merge_table/merge_table.dart';
 import 'package:pos/ui/pages/setting/setting_page.dart';
 
@@ -17,7 +19,9 @@ class HomePage extends StatelessWidget {
   final HomeCubit homeCubit;
   final SettingCubit settingCubit;
   final TableDetailCubit tableCubit;
-  const HomePage(this.homeCubit, this.settingCubit, this.tableCubit,
+  final InvoiceCubit invoiceCubit;
+  const HomePage(
+      this.homeCubit, this.settingCubit, this.tableCubit, this.invoiceCubit,
       {super.key});
 
   @override
@@ -32,7 +36,7 @@ class HomePage extends StatelessWidget {
         ),
         BlocProvider.value(value: tableCubit)
       ],
-      child: HomePageChild(homeCubit, settingCubit, tableCubit),
+      child: HomePageChild(homeCubit, settingCubit, tableCubit, invoiceCubit),
     );
   }
 }
@@ -41,7 +45,9 @@ class HomePageChild extends StatefulWidget {
   final HomeCubit cubit;
   final SettingCubit settingCubit;
   final TableDetailCubit tableCubit;
-  const HomePageChild(this.cubit, this.settingCubit, this.tableCubit,
+  final InvoiceCubit invoiceCubit;
+  const HomePageChild(
+      this.cubit, this.settingCubit, this.tableCubit, this.invoiceCubit,
       {super.key});
 
   @override
@@ -53,6 +59,7 @@ class _HomePageChildState extends State<HomePageChild> {
   @override
   void initState() {
     _select = widget.cubit.user?.permission == Permission.admin ? 5 : 2;
+    widget.cubit.changeScreen(AppConstants.screenMap[_select]!);
     super.initState();
   }
 
@@ -81,6 +88,9 @@ class _HomePageChildState extends State<HomePageChild> {
             builder: (context, state) {
               if (state.screen == Screen.setting) {
                 return Expanded(child: SettingPage(widget.settingCubit));
+              }
+              if (state.screen == Screen.invoice) {
+                return Expanded(child: InvoiceListScreen(widget.invoiceCubit));
               }
               return Expanded(child: HomeBody(widget.cubit, widget.tableCubit));
             },

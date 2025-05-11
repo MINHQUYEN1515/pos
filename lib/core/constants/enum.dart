@@ -14,7 +14,4 @@ enum TypeKeyBoard {
   payment,
 }
 
-enum Screen {
-  setting,
-  restaurent,
-}
+enum Screen { setting, restaurent, invoice }

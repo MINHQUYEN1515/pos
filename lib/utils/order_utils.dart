@@ -7,12 +7,12 @@ class OrderUtils {
       String? username,
       required String pay}) {
     double _price = 0;
-    orderTemp.forEach((e) {
-      _price += e.product!.price!;
-      e.product?.extras?.forEach((el) {
+    for (var e in orderTemp) {
+      _price += (e.product!.price! * e.quantity!);
+      e.extras?.forEach((el) {
         _price += el.price;
       });
-    });
+    }
     return Order(
         hiveId: Uuid().v1(),
         createdAt: DateTime.now().toString(),

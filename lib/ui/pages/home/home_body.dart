@@ -8,6 +8,7 @@ import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/home_cubit/home.dart';
 import 'package:pos/state_manager/table_detail/table_detail_cubit.dart';
 import 'package:pos/theme/colors.dart';
+import 'package:pos/ui/pages/home/option.dart';
 import 'package:pos/ui/pages/page.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
 

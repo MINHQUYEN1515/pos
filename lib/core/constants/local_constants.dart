@@ -30,7 +30,8 @@ class AppConstants {
   static const Map<int, Screen> screenMap = {
     1: Screen.setting,
     2: Screen.restaurent,
-    3: Screen.restaurent
+    3: Screen.restaurent,
+    5: Screen.invoice
   };
   static const String TABLE_USING = "using";
   static const String TABLE_EMPTY = 'empty';
@@ -41,6 +42,7 @@ class AppConstants {
   static const String NUOC = 'nuoc';
   static const String TIEN_MAT = 'tienmat';
   static const String TRATHE = 'trathe';
+  static const String ALl = 'all';
 }
 
 class Constants {

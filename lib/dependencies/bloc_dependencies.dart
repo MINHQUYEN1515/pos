@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:pos/state_manager/invoice_cubit/invoice.dart';
 import 'package:pos/state_manager/login_cubit/login.dart';
 
 import '../state_manager/state_manager.dart';
@@ -14,5 +15,7 @@ class BlocDependencies {
         () => SettingCubit(injector(), injector(), injector()));
     injector.registerFactory<TableDetailCubit>(() => TableDetailCubit(
         injector(), injector(), injector(), injector(), injector()));
+    injector.registerFactory<InvoiceCubit>(
+        () => InvoiceCubit(injector(), injector()));
   }
 }
