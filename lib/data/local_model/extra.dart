@@ -16,7 +16,17 @@ class Extra {
   int quantity;
   @HiveField(5, defaultValue: 0)
   double? total;
-
+  factory Extra.fromJson(Map<String, dynamic> json) {
+    return Extra(
+      hiveId: json['hiveId'],
+      name: json['name'],
+      price: json['price']?.toDouble() ?? 0.0, // Default to 0 if null
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      quantity: json['quantity'] ?? 1, // Default to 1 if null
+      total: json['total']?.toDouble() ?? 0.0, // Default to 0 if null
+    );
+  }
   Extra(
       {this.hiveId,
       this.name,
@@ -24,4 +34,15 @@ class Extra {
       this.createdAt,
       this.quantity = 1,
       this.total = 0});
+  Map<String, dynamic> toJson() {
+    return {
+      'hiveId': hiveId,
+      'name': name,
+      'price': price,
+      'createdAt':
+          createdAt?.toIso8601String(), // Convert DateTime to ISO string
+      'quantity': quantity,
+      'total': total,
+    };
+  }
 }

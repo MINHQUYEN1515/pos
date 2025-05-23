@@ -57,7 +57,7 @@ class UserLocal {
       'hiveId': hiveId,
       'username': username,
       'password': password,
-      'permission': permission?.name,
+      'permission': permission?.toJson(),
     };
   }
 }

@@ -328,6 +328,7 @@ class _POSScreenState extends State<POSScreen>
                   widget.tableCubit.updateOrder(
                       order: widget.tableCubit.selectOrder!,
                       position: _position);
+                  setState(() {});
                 }
               }),
             ],
@@ -365,6 +366,7 @@ class _POSScreenState extends State<POSScreen>
                   widget.tableCubit.deleteOrder(
                       order: widget.tableCubit.selectOrder!,
                       position: _position);
+                  setState(() {});
                 }
               }),
             ],
@@ -420,9 +422,27 @@ class _POSScreenState extends State<POSScreen>
               Expanded(
                 child: TextButton(
                   onPressed: () {
-                    setState(() {
-                      ispay = !ispay;
-                    });
+                    if (widget.tableCubit.user?.permission != Permission.cash) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Thông báo"),
+                            content: Text("Chỉ có cash mới được thanh toán"),
+                            actions: [
+                              TextButton(
+                                child: Text('OK'),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      setState(() {
+                        ispay = !ispay;
+                      });
+                    }
                   },
                   child: const Text(
                     "Thanh toán",
@@ -554,7 +574,11 @@ class _POSScreenState extends State<POSScreen>
                       Expanded(
                         child: BlocBuilder<TableDetailCubit, TableDetailState>(
                           buildWhen: (previous, current) =>
-                              previous.status != current.status,
+                              previous.status != current.status ||
+                              previous.orderTemp.length !=
+                                  current.orderTemp.length ||
+                              previous.statusOrderTemp !=
+                                  current.statusOrderTemp,
                           builder: (context, state) {
                             return ListView.builder(
                               itemCount: state.orderTemp.length,

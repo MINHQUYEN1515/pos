@@ -56,4 +56,33 @@ class Product {
         updatedAt: updatedAt ?? this.updatedAt,
         extras: extras ?? this.extras);
   }
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      hiveId: json['hiveId'],
+      name: json['name'],
+      price: json['price']?.toDouble(),
+      type: json['type'],
+      code: json['code'],
+      image: json['image'],
+      craetedAt: json['craetedAt'],
+      updatedAt: json['updatedAt'],
+      extras: json['extras'] != null
+          ? (json['extras'] as List).map((e) => Extra.fromJson(e)).toList()
+          : null,
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'hiveId': hiveId,
+      'name': name,
+      'price': price,
+      'type': type,
+      'code': code,
+      'image': image,
+      'craetedAt': craetedAt,
+      'updatedAt': updatedAt,
+      'extras': extras?.map((extra) => extra.toJson()).toList(),
+    };
+  }
 }

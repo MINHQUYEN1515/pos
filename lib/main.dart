@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos/app.dart';
 import 'package:pos/dependencies/app_dependencies.dart';
+import 'package:pos/server/server.dart';
 import 'package:pos/state_manager/login_cubit/login.dart';
 
 import 'data/database/data_base_local.dart';
@@ -13,6 +14,7 @@ Future main() async {
   await EasyLocalization.ensureInitialized();
   await DataBaseLocal.init();
   await AppDependencies.init();
+  Server.instane.initRoutes();
   runApp(EasyLocalization(
       supportedLocales: [Locale('en'), Locale('vi'), Locale('de')],
       path:

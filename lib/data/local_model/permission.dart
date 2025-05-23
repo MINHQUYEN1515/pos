@@ -11,5 +11,23 @@ enum Permission {
   user,
 
   @HiveField(2)
-  cash,
+  cash;
+
+  // Convert enum to String value
+  String toJson() => name;
+
+  // Create enum from String value
+  static Permission fromJson(String json) => values.byName(json);
+
+  // Helper method to get display name if needed
+  String get displayName {
+    switch (this) {
+      case Permission.admin:
+        return 'Administrator';
+      case Permission.user:
+        return 'User';
+      case Permission.cash:
+        return 'Cashier';
+    }
+  }
 }

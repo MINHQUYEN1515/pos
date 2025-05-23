@@ -32,6 +32,8 @@ class OrderItem {
   List<Extra>? extras;
   @HiveField(12, defaultValue: 0)
   int? position;
+  @HiveField(13)
+  bool isOrders;
   OrderItem(
       {this.hiveId,
       this.code,
@@ -45,7 +47,8 @@ class OrderItem {
       this.tableId,
       this.note,
       this.extras,
-      this.position});
+      this.position,
+      this.isOrders = false});
   OrderItem copyWith(
       {String? hiveId,
       String? code,
@@ -59,7 +62,8 @@ class OrderItem {
       String? tableId,
       String? note,
       List<Extra>? extras,
-      int? position}) {
+      int? position,
+      bool? isOrders}) {
     return OrderItem()
       ..hiveId = hiveId ?? this.hiveId
       ..code = code ?? this.code
@@ -73,6 +77,49 @@ class OrderItem {
       ..tableId = tableId ?? this.tableId
       ..note = note ?? this.note
       ..extras = extras ?? this.extras
-      ..position = position ?? this.position;
+      ..position = position ?? this.position
+      ..isOrders = isOrders ?? this.isOrders;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'hiveId': hiveId,
+      'code': code,
+      'username': username,
+      'amount': amount,
+      'product': product?.toJson(), // Requires Product.toJson()
+      'quantity': quantity,
+      'craetedAt': craetedAt,
+      'updatedAt': updatedAt,
+      'totalAmount': totalAmount,
+      'tableId': tableId,
+      'note': note,
+      'extras': extras
+          ?.map((extra) => extra.toJson())
+          .toList(), // Requires Extra.toJson()
+      'position': position,
+      'is_orders': isOrders
+    };
+  }
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+        hiveId: json['hiveId'],
+        code: json['code'],
+        username: json['username'],
+        amount: json['amount']?.toDouble(),
+        product:
+            json['product'] != null ? Product.fromJson(json['product']) : null,
+        quantity: json['quantity'],
+        craetedAt: json['craetedAt'],
+        updatedAt: json['updatedAt'],
+        totalAmount: json['totalAmount']?.toDouble(),
+        tableId: json['tableId'],
+        note: json['note'],
+        extras: json['extras'] != null
+            ? (json['extras'] as List).map((e) => Extra.fromJson(e)).toList()
+            : null,
+        position: json['position'],
+        isOrders: json['is_orders']);
   }
 }

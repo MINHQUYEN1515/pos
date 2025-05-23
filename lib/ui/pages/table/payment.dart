@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pos/core/constants/local_constants.dart';
 import 'package:pos/core/routes/app_route.dart';
 import 'package:pos/data/local_model/local_model.dart';
+import 'package:pos/extensions/date_time_extension.dart';
 import 'package:pos/extensions/number_extension.dart';
 import 'package:pos/extensions/string_extension.dart';
+import 'package:pos/extensions/textstyle_extension.dart';
 import 'package:pos/state_manager/state_manager.dart';
 import 'package:pos/theme/colors.dart';
 import 'package:pos/ui/widgets/button/custom_material_button.dart';
@@ -385,14 +387,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           orderTemp: widget.tableDetailCubit.items,
                           pay: AppConstants.TRATHE,
                           username: widget.tableDetailCubit.user?.username);
-                      await widget.tableDetailCubit
-                          .paymeny(order: order)
-                          .then((value) {
-                        widget.tableDetailCubit
-                            .deleteOrderTemp(tableId: widget.table.tableId!);
+                      // await widget.tableDetailCubit
+                      //     .paymeny(order: order)
+                      //     .then((value) {
+                      //   widget.tableDetailCubit
+                      //       .deleteOrderTemp(tableId: widget.table.tableId!);
 
-                        Navigator.pushNamed(context, AppRoutes.home);
-                      });
+                      //   Navigator.pushNamed(context, AppRoutes.home);
+                      // });
+                      showDialog(
+                          context: context,
+                          builder: (_) => BillPayment(
+                                order: order,
+                              ));
                     },
                     height: 80,
                     alignment: Alignment.center,
@@ -475,6 +482,255 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class BillPayment extends StatefulWidget {
+  final Order order;
+  const BillPayment({required this.order, super.key});
+
+  @override
+  State<BillPayment> createState() => _BillPaymentState();
+}
+
+class _BillPaymentState extends State<BillPayment> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: 400,
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        color: appColors(context).white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 5,
+          children: [
+            _header(context),
+            SizedBox(
+              height: 5,
+            ),
+            _border(),
+            _bodyHeader(),
+            _doubleBorder(),
+            Column(
+              spacing: 5,
+              children: [
+                Column(
+                    children: widget.order.items!
+                        .map((e) => Column(
+                              children: [
+                                ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemBuilder: (context, index) =>
+                                        _listOrder(context, data: e),
+                                    separatorBuilder: (context, index) =>
+                                        SizedBox(
+                                          height: 1,
+                                        ),
+                                    itemCount: widget.order.items?.length ?? 0)
+                              ],
+                            ))
+                        .toList())
+              ],
+            ),
+            _total(),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _header(context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        "TNKAS".w500(fontSize: 18, color: appColors(context).black),
+        "Magdeburg".w300(fontSize: 15, color: appColors(context).black),
+        "10367 Berlin".w300(fontSize: 15, color: appColors(context).black),
+        "Steuer Nr:. Ma so thue"
+            .w300(fontSize: 15, color: appColors(context).black),
+        "Telefonnr: 032269974522"
+            .w300(fontSize: 15, color: appColors(context).black),
+      ],
+    );
+  }
+
+  Widget _bodyHeader() {
+    return Column(
+      spacing: 5,
+      children: [
+        "R.Nr: M6-0012".w300(fontSize: 20),
+        SizedBox(
+          height: 5,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            "${widget.order.username}".w400(fontSize: 15),
+            "Bestellung Uhrzeit  ${DateTime.now().format()}".w400(fontSize: 15),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            "Tisch: ${widget.order.items?.first.tableId}".w400(fontSize: 15),
+            "Datum ${DateTime.now().format(format: Constants.commonDateFormat)}"
+                .w400(fontSize: 15),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _border() {
+    return Text("=========");
+  }
+
+  Widget _doubleBorder() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 5,
+        ),
+        _border(),
+        SizedBox(
+          height: 2,
+        ),
+        _border(),
+        SizedBox(
+          height: 5,
+        ),
+      ],
+    );
+  }
+
+  Widget _listOrder(context, {OrderItem? data}) {
+    // List<LocalDbItemExtra> extras = [];
+    // List<LocalDbNote> notes = [];
+    // List<dynamic> jsonStringExtras =
+    //     (data?.itemsExtra != null && data?.itemsExtra != "")
+    //         ? jsonDecode(data!.itemsExtra!)
+    //         : [];
+    // List<dynamic> jsonStringNotes =
+    //     (data?.itemsNote != null && data?.itemsNote != "")
+    //         ? jsonDecode(data!.itemsNote!)
+    //         : [];
+    // jsonStringExtras.forEach((e) {
+    //   extras.add(LocalDbItemExtra.parse(e));
+    // });
+    // jsonStringNotes.forEach((e) {
+    //   notes.add(LocalDbNote.fromJson(e));
+    // });
+    return Column(
+      spacing: 10,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                "${data?.quantity}x".w300(fontSize: 18),
+                SizedBox(
+                  width: 5,
+                ),
+                "${data?.product?.name}".w300(fontSize: 18),
+              ],
+            ),
+            Row(
+              children: [
+                "${data?.product?.price}".w400(fontSize: 18),
+                SizedBox(
+                  width: 5,
+                ),
+                "${data?.totalAmount}".w400(fontSize: 18),
+              ],
+            )
+          ],
+        ),
+        for (int i = 0;
+            i < (data?.extras?.length != 0 ? data!.extras!.length : 0);
+            i++)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 15,
+                  ),
+                  "+${data?.extras?[i].quantity}x".w400(fontSize: 12),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  "${data?.extras?[i].name}".w300(fontSize: 12),
+                ],
+              ),
+              Row(
+                children: [
+                  "${data?.extras?[i].price}".w300(fontSize: 12),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  "${data?.extras?[i].total}".w300(fontSize: 12),
+                ],
+              )
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _total() {
+    return Column(
+      spacing: 5,
+      children: [
+        _border(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            "".w300(fontSize: 15),
+            "19% MwST:  0.19".w300(fontSize: 15),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _batch({required String name}) {
+    int _width = (MediaQuery.of(context).size.width / 2).toInt();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (var i = 0; i < _width / 2; i += 7)
+          "*".w700(
+            fontSize: 20,
+          ),
+        name.w400(fontSize: 30),
+        for (var i = _width / 2; i < _width; i += 7) "*".w700(fontSize: 20),
+      ],
+    );
+  }
+
+  Widget _area({required String name}) {
+    int _width = (MediaQuery.of(context).size.width / 2).toInt();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (var i = 0; i < _width / 2; i += 9)
+          "*".w700(
+            fontSize: 15,
+          ),
+        name.w400(fontSize: 20),
+        for (var i = _width / 2; i < _width; i += 9) "*".w700(fontSize: 15),
+      ],
     );
   }
 }

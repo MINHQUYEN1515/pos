@@ -10,6 +10,7 @@ class TableDetailState extends Equatable {
   final String? fillter;
   final OrderItem? selectOrders;
   final double price;
+  final LoadStatus statusOrderTemp;
   const TableDetailState(
       {this.status = LoadStatus.initial,
       this.product = const [],
@@ -17,10 +18,19 @@ class TableDetailState extends Equatable {
       this.table,
       this.fillter,
       this.selectOrders,
-      this.price = 0});
+      this.price = 0,
+      this.statusOrderTemp = LoadStatus.initial});
   @override
-  List<Object?> get props =>
-      [status, product, orderTemp, table, fillter, selectOrders, price];
+  List<Object?> get props => [
+        status,
+        product,
+        orderTemp,
+        table,
+        fillter,
+        selectOrders,
+        price,
+        statusOrderTemp
+      ];
   TableDetailState copyWith(
       {LoadStatus? status,
       List<Product>? product,
@@ -28,7 +38,8 @@ class TableDetailState extends Equatable {
       TablePos? table,
       String? fillter,
       OrderItem? selectOrders,
-      double? price}) {
+      double? price,
+      LoadStatus? statusOrderTemp}) {
     return TableDetailState(
         status: status ?? this.status,
         product: product ?? this.product,
@@ -36,6 +47,7 @@ class TableDetailState extends Equatable {
         table: table ?? this.table,
         fillter: fillter ?? this.fillter,
         selectOrders: selectOrders ?? this.selectOrders,
-        price: price ?? this.price);
+        price: price ?? this.price,
+        statusOrderTemp: statusOrderTemp ?? this.statusOrderTemp);
   }
 }

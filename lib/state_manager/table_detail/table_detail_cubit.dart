@@ -26,7 +26,8 @@ class TableDetailCubit extends Cubit<TableDetailState> {
       : super(TableDetailState());
   Future<double> loadData(
       {required TablePos table, String? fillter, int? position}) async {
-    emit(state.copyWith(status: LoadStatus.loading));
+    emit(state.copyWith(
+        status: LoadStatus.loading, statusOrderTemp: LoadStatus.loading));
     try {
       var data = await _productRepo.getAll();
       if (fillter != null) {
@@ -40,14 +41,15 @@ class TableDetailCubit extends Cubit<TableDetailState> {
       logger.i(table.tableId);
       orderTemp = orderTemp.where((e) => e.tableId == table.tableId).toList();
       emit(state.copyWith(
-        product: data,
-        orderTemp: orderTemp,
-        table: table,
-        status: LoadStatus.success,
-      ));
+          product: data,
+          orderTemp: orderTemp,
+          table: table,
+          status: LoadStatus.success,
+          statusOrderTemp: LoadStatus.success));
       return _getTotal(orderTemp);
     } catch (e) {
-      emit(state.copyWith(status: LoadStatus.failure));
+      emit(state.copyWith(
+          status: LoadStatus.failure, statusOrderTemp: LoadStatus.failure));
     }
     return 0;
   }
@@ -57,7 +59,7 @@ class TableDetailCubit extends Cubit<TableDetailState> {
     try {
       var data = await _productRepo.getAll();
       data = data.where((e) => e.type == fillter).toList();
-      loadData(table: state.table!, fillter: fillter, position: position);
+      await loadData(table: state.table!, fillter: fillter, position: position);
       emit(state.copyWith(
           product: data, fillter: fillter, status: LoadStatus.success));
     } catch (e) {
@@ -102,7 +104,8 @@ class TableDetailCubit extends Cubit<TableDetailState> {
       }
 
       emit(state.copyWith(status: LoadStatus.success));
-      loadData(table: state.table!, fillter: state.fillter, position: position);
+      await loadData(
+          table: state.table!, fillter: state.fillter, position: position);
     } catch (e) {
       emit(state.copyWith(status: LoadStatus.failure));
     }
@@ -116,17 +119,20 @@ class TableDetailCubit extends Cubit<TableDetailState> {
     }
   }
 
-  void updateOrder({required OrderItem order, int? position}) {
-    _orderTemp.updateOrder(order: order);
+  void updateOrder({required OrderItem order, int? position}) async {
+    await _orderTemp.updateOrder(order: order);
     if (order.quantity == 0) {
-      _orderTemp.deleteOrder(order: order);
+      await _orderTemp.deleteOrder(order: order);
     }
-    loadData(table: state.table!, fillter: state.fillter);
+    await loadData(
+        table: state.table!, fillter: state.fillter, position: position);
   }
 
   void deleteOrder({required OrderItem order, int? position}) async {
-    _orderTemp.deleteOrder(order: order);
-    loadData(table: state.table!, fillter: state.fillter);
+    emit(state.copyWith(status: LoadStatus.loading));
+    await _orderTemp.deleteOrder(order: order);
+    await loadData(
+        table: state.table!, fillter: state.fillter, position: position);
   }
 
   void findProduct({String search = ''}) async {
@@ -231,7 +237,7 @@ class TableDetailCubit extends Cubit<TableDetailState> {
     });
     _tableFrom.status = AppConstants.TABLE_EMPTY;
     _tableFrom.amount = 0;
-    _tableFrom.userName = user?.username;
+    _tableFrom.userName = "";
 
     orderTo.forEach((e) {
       _price += (e.quantity! * e.product!.price!);
@@ -273,7 +279,7 @@ class TableDetailCubit extends Cubit<TableDetailState> {
     _tableFrom.forEach((e) async {
       e.status = AppConstants.TABLE_EMPTY;
       e.amount = 0;
-      e.userName = user?.username;
+      e.userName = "";
       await _tableRepo.updateTable(table: e);
     });
     orderTo.forEach((e) {
